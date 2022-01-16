@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="../../css/index.css">
+    </head>
+    <body>
+        <a id="top" href="/"><button id = "btnT">Cancel</button></a>
+        <div class="content">
+            <p><%= msg %></p>
+            <h1>Ask a public question</h1>
+            <form method="post" action = "/createpost" class = "postinfo">
+                    <p>
+                        <label for="title">Title</label>
+                        <div class="rpx"></div>
+                        <input type="text" name="title" id="title" placeholder = "title" autocomplete="off" required>
+                    </p>
+                    <p>
+                        <label for="body">Question</label>
+                        <div class="rpx"></div>
+                        <textarea type="text" name="body" id="textarea" placeholder = "Question"required></textarea>
+                    </p>
+                    <p>
+                        <label for="answerc">Answer your own question</label>
+                        <input type="checkbox" name="answerc" placeholder="Answer" id="checkbox">
+                    </p>
+                    <hr>
+                    <p>
+                        <label for="answer" style = "display: none" id = "hiddenT">Answer</label>
+                        <div class="rpx"></div>
+                        <textarea name="answer" id="textareaA" placeholder = "answer" style = "display: none"></textarea>
+                    </p>
+                    <p>
+                        <input type="submit" value="Submit" id = "btn">
+                        
+                    </p>
+            </form>
+        </div>
+    </body>
+    <script>
+        var checkbox = document.getElementById("checkbox")
+        var textarea = document.getElementById("textareaA")
+        var text = document.getElementById("hiddenT")
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                textarea.style.display = "inline"
+                text.style.display = "block"
+            }
+            else {
+                textarea.style.display = "none"
+                text.style.display = "none"
+            }
+        })
+    </script>
+</html>

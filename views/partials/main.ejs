@@ -1,0 +1,16 @@
+<div class="content">
+    <h2>post was created by <%= creator %></h2>
+    <div class="question">
+        <h1><%= title %></h1>
+        <div class="rpx"></div>
+        <h3><%= body %></h3>
+        <div class="rpx"></div>
+    </div>
+    <div class="comments">
+    <form action = "/question/<%= name %>?id=<%= id %>/comments" method = "post">
+        <textarea name="comment" placeholder="Comment" id = "comment"></textarea>
+        <input type="submit" id = "btn-snd" value = "Submit Comment">
+    </form>
+    
+    <p class="text-center text-muted">&copy; Copyright 2022 Skep</p>
+</div>
