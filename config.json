@@ -1,10 +1,10 @@
 {
-    "host": "localhost",
-    "user": "Admin",
-    "password": "egoz2007",
+    "host": "",
+    "user": "",
+    "password": "",
     "database": "stackAe",
 
     "email": "gmail",
-    "email_address": "blumilumyt@gmail.com",
-    "email_password": "Egoz2007#"
+    "email_address": "",
+    "email_password": ""
 }
