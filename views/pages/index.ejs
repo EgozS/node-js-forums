@@ -1,17 +1,29 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="../../css/index.css">
-    </head>
-    <body>
-        <a id="top" href="/login"><button id = "btnT">login</button></a>
-        <a id="user" href="/panel"><button>Logged in as <%= username %></button></a>
-        
-        <div class="content">
-            <a id="top" href="/createpost"><button id = "btnE">ask a question</button></a>
-            <h1>Welcome to stack æ</h1>
-            <p>new posts:</p>
-            <div class="posts">
-               
-        </div>
-    </body>
+  <head>
+    <link rel="stylesheet" href="../../css/index.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <a id="top" href="/login"><button class="btnT">login</button></a>
+      </div>
+      <div>
+        <a id="user" href="/panel"
+          ><button class="btnT">Logged in as <%= username %></button></a
+        >
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="postcard-title"><h1>Welcome to Stack OverFlow</h1></div>
+      <div class="post-textarea">
+        <textarea placeholder="Something on your mind...?"></textarea>
+      </div>
+      <div class="ask-button-container">
+        <a id="top" href="/createpost">
+          <button id="btnE">Ask a question</button>
+        </a>
+      </div>
+    </div>
+  </body>
 </html>
