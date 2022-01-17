@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../../../public/css/index.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <a id="top" href="/"><button class="btnT">main page</button></a>
+      </div>
+      <div>
+        <form action="/logout" method="post">
+          <input type="submit" class="btnT" value="logout" />
+        </form>
+      </div>
+    </div>
+
+    <div class="panel-wrapper">
+      <div class="postcard-title"><h1>welcome <%= username %></h1></div>
+      <span
+        style="display: flex; border-top: solid 1px lightgray; margin: 35px 0px"
+      ></span>
+      <div class="buttons" style="display: flex; justify-content: space-around">
+        <div class="oneSide">
+          <form action="/change-password" method="post">
+            <input type="submit" class="btnT round" value="Change password" />
+          </form>
+          <form action="/change-username" method="post">
+            <input type="submit" class="btnT round" value="Change username" />
+          </form>
+        </div>
+        <!--make this button red (warning)-->
+        <div class="secondSide">
+          <form action="/delete-account" method="post">
+            <input
+              type="submit"
+              class="btnT round"
+              value="Delete account"
+              style="background: #dc3545"
+            />
+          </form>
+          <a id="top" href="/details"
+            ><button class="btnT round">View account details</button></a
+          >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

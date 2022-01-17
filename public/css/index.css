@@ -202,6 +202,11 @@ hr {
   text-decoration: none;
   color: red;
 }
+.round {
+  border-radius: 5px;
+  padding: 30px;
+  width: 100%;
+}
 .register-wrapper {
   color: rgb(6, 6, 6);
   text-align: center;
@@ -329,7 +334,7 @@ hr {
   width: 40%;
   height: auto;
   background-color: rgb(255, 255, 255);
-  padding: 10px;
+  padding: 80px 25px;
   border-radius: 10px;
   box-shadow: 0px 0px 53px -2px rgba(0, 0, 0, 0.486);
   -webkit-box-shadow: 0px 0px 53px -2px rgba(0, 0, 0, 0.486);
