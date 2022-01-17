@@ -140,3 +140,23 @@ input[type="text"],
   box-sizing: border-box;
   outline: none;
 }
+
+#submit {
+  display: inline-block;
+  margin: 0 10px;
+  text-decoration: none;
+  border: 2px solid #69a6ce;
+  color: #fff;
+  background: #69a6ce;
+  font-weight: 500;
+  padding: 10px 25px;
+  border-radius: 25px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+#submit:hover {
+  background: #fff;
+
+  color: #69a6ce;
+}

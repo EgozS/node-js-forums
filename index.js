@@ -137,12 +137,26 @@ app.get('/ver', (req, res) => {
 
 //get panel from pages/account/panel
 app.get('/panel', function(req, res){
+    username = req.session.user;
     if(req.session.loggedIn){
-    res.render('pages/account/panel', {msg: 'welcome back'});
+    res.render('pages/account/panel', {msg: 'welcome back', username: username});
     } else {
     res.render('pages/account/login', {msg: 'please login first'});
     }
 });
+
+app.get('/details', (req, res) => {
+    if(req.session.loggedIn){
+        var username = req.session.user;
+        var email = req.session.email;
+        var id = req.session.id;
+        var createdAt = req.session.createdAt;
+        var updatedAt = req.session.updatedAt;
+    res.render('pages/account/details', {username: username, email: email, createdAt: createdAt, updatedAt: updatedAt, id: id});
+    } else {
+    res.render('pages/account/login', {msg: 'please login first'});
+    }
+})
 
 
 
@@ -214,7 +228,10 @@ app.post('/login', (req, res) => {
                         else if (results[0].verify === "1" || results[0].verify === 1 || results[0].verify === true){
                             req.session.loggedIn = true;
                             req.session.user = username;
-                            console.log(req.session.user, req.session.loggedIn)
+                            req.session.email = results[0].Email;
+                            req.session.id = results[0].Id;
+                            req.session.createdAt = results[0].creationDate;
+                            req.session.updatedAt = results[0].lastUpdated;
                             res.render('pages/account/panel', {msg:"Welcome back!"})
                         }
                         else {
@@ -409,6 +426,11 @@ app.post('/question/:idTitle/comments', (req, res) => {
    
     
 });
+
+app.post('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+})
 
 app.listen(port, () => {
     console.log(`listening at http://localhost:${port}`)

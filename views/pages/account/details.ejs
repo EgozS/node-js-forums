@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../../css/index.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <a id="top" href="/panel"><button class="btnT">back to panel</button></a>
+      </div>
+    </div>
+
+    <div class="panel-wrapper">
+      <div class="postcard-title"><h1>account details:</h1></div>
+      <div class="buttons">
+        <p>
+            <label>username:</label>
+            <input type="text" value="<%= username %>" disabled>
+        </p>
+        <p>
+            <label>email:</label>
+            <input type="text" value="<%= email %>" disabled>
+        </p>
+        <p>
+            <label>id:</label>
+            <input type="text" value="<%= id %>" disabled>
+        </p>
+        <p>
+            <label>created at:</label>
+            <input type="text" value="<%= createdAt %>" disabled>
+        </p>
+        <p>
+            <label>updated at:</label>
+            <input type="text" value="<%= updatedAt %>" disabled>
+        </p>
+        <!--make an a element with a button-->
+      </div>
+    </div>
+  </body>
+</html>

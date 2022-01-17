@@ -1,6 +1,34 @@
 <html>
   <head>
-    <link rel="stylesheet" href="../../../css/index.css" type="text/css" />
+    <link rel="stylesheet" href="../../css/index.css" />
   </head>
-  <body></body>
+  <body>
+    <div class="header">
+      <div>
+        <a id="top" href="/"><button class="btnT">main page</button></a>
+      </div>
+      <div>
+        <form action="/logout" method="post">
+          <input type = "submit" class="btnT" value = "logout">
+        </form>
+      </div>
+    </div>
+
+    <div class="panel-wrapper">
+      <div class="postcard-title"><h1>welcome <%= username %></h1></div>
+      <div class="buttons">
+        <form action="/change-password" method="post">
+          <input type="submit" class="btnT" value="change password">
+        </form>
+        <form action="/change-username" method="post">
+          <input type="submit" class="btnT" value="change username">
+        </form>
+        <!--make this button red (warning)-->
+        <form action="/delete-account" method="post">
+          <input type="submit" class="btnT" value="delete account">
+        </form>
+        <a id="top" href="/details"><button class="btnT">view account details</button></a>
+      </div>
+    </div>
+  </body>
 </html>

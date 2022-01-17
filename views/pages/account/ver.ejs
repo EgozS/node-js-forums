@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>404</title>
+    <title>verify email</title>
     <link rel="stylesheet" href="../../../css/ver.css" />
   </head>
   <body>
@@ -12,10 +12,12 @@
         <div class="error-content">
           <h2 class="header" data-text="Verify Email">Verify Email</h2>
           <br />
-          <input type="text" />
           <p><%= msg %></p>
           <div class="btns">
-            <a href="/">Submit</a>
+            <form action = "/send-email" method = "post">
+              <input type="text" name="email" placeholder="Email">
+              <input type = "submit" id="submit" value = "verify">
+            </form>
           </div>
         </div>
       </div>
