@@ -23,7 +23,8 @@ var con = mysql.createConnection({
     host: config.host,
     user: config.user,
     password: config.password,
-    database: config.database
+    database: config.database,
+    port: config.port
   });
 
 
@@ -41,7 +42,7 @@ function sendEmail(email, token) {
     });
  
     var mailOptions = {
-        from: 'blumilumyt@gmail.com',
+        from: 'Stack Ae',
         to: email,
         subject: 'Email verification - test',
         html: '<p>You requested for email verification, kindly use this <a href="http://localhost:80/verify-email?token=' + token + '">link</a> to verify your email address</p>'
@@ -232,7 +233,7 @@ app.post('/login', (req, res) => {
                             req.session.id = results[0].Id;
                             req.session.createdAt = results[0].creationDate;
                             req.session.updatedAt = results[0].lastUpdated;
-                            res.render('pages/account/panel', {msg:"Welcome back!"})
+                            res.render('pages/account/panel', {msg:"Welcome back!", username: username})
                         }
                         else {
                             console.log(results[0].verify)
@@ -338,7 +339,7 @@ app.get('/verify-email', function(req, res, next) {
          }
  
         
-        res.render('pages/account/panel', {msg: msg});
+        res.render('pages/account/panel', {msg: msg, username: req.session.user});
      });
  })
 

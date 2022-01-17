@@ -1,10 +1,11 @@
 {
-    "host": "localhost",
-    "user": "Admin",
-    "password": "egoz2007",
-    "database": "stackAe",
+    "host": "containers-us-west-23.railway.app",
+    "user": "root",
+    "password": "h4pAvKlclzUI7PgEe7uA",
+    "port": "5594",
+    "database": "StackAe",
 
     "email": "gmail",
-    "email_address": "blumilumyt@gmail.com",
-    "email_password": "Egoz2007#"
+    "email_address": "poopcar48x@gmail.com",
+    "email_password": "Mandem400"
 }

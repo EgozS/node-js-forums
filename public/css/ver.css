@@ -157,6 +157,6 @@ input[type="text"],
 
 #submit:hover {
   background: #fff;
-
+  cursor: pointer;
   color: #69a6ce;
 }
