@@ -1,33 +1,49 @@
-
 <html>
-    <head>
-        <title>Register</title>
-        <link rel="stylesheet" href="../../../css/index.css" type="text/css">
-    </head>
-    <body>
-        <a id="top" href="/"><button id = "btnT">cancel</button></a>
-        <div class="content">
-        <h1>Register</h1>
-        <p id = "error"><%= msg %></p>
-        <form action="/register" method="POST">
-            <p>
-                <label for="username">Username:</label>
-                <input type="text" name="username" id="username" placeholder = "username" autocomplete="off "required>
-            </p>
-            <p>
-                <label for="username">Email address:</label> </label>
-                <input type="text" name="email" id="email" placeholder = "Email"required>
-            </p>
-            <p>
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" placeholder = "password" required>
-            </p>
-            <p>
-                <input type="submit" value="Register" id = "btn">
-                
-            </p>
-        </form>
-        <a href="login"><button id = "btn-scnd">Login instead</button></a>
+  <head>
+    <title>Register</title>
+    <link rel="stylesheet" href="../../../css/index.css" type="text/css" />
+  </head>
+  <body>
+    <a id="top" href="/"><button class="btnT">cancel</button></a>
+    <div class="register-wrapper" style="padding: 42px 19px">
+      <h1>Register</h1>
+      <p id="error"><%= msg %></p>
+      <form action="/register" method="POST">
+        <p>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            placeholder="username"
+            autocomplete="off "
+            required
+          />
+        </p>
+        <p>
+          <input
+            type="text"
+            name="email"
+            id="email"
+            placeholder="Email"
+            required
+          />
+        </p>
+        <p>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="password"
+            required
+          />
+        </p>
+        <p>
+          <input type="submit" value="Register" id="btn" />
+        </p>
+      </form>
+      <p class="redirect-login-text">
+        Already have an account?<a href="login"><span> Login</span></a>
+      </p>
     </div>
-    </body>
+  </body>
 </html>
