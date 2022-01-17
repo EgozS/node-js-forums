@@ -6,7 +6,7 @@ var bcrypt = require('bcrypt');
 var randtoken = require('rand-token');
 var nodemailer = require("nodemailer");
 var app = express();
-var port = 3000
+var port = 80;
 var config = require('./config.json');
 
 app.use(session({

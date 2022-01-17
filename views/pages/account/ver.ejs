@@ -1,16 +1,24 @@
-<html>
+<!--make me a 404 page with basic css-->
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <link rel="stylesheet" href="../../../css/index.css" type="text/css" />
+    <meta charset="UTF-8" />
+    <title>404</title>
+    <link rel="stylesheet" href="../../../css/ver.css" />
   </head>
   <body>
-    <div class="content">
-      <h1>Verify Email</h1>
-      <p id="error"><%= msg %></p>
-      <form action="/send-email" method="post">
-        <input type="text" name="email" placeholder="Email" />
-        <div class="rpx"></div>
-        <input type="submit" id="btn-snd" value="Send verification Email" />
-      </form>
+    <div class="error-boddy">
+      <div id="error-page">
+        <div class="error-content">
+          <h2 class="header" data-text="Verify Email">Verify Email</h2>
+          <br />
+          <input type="text" />
+          <p><%= msg %></p>
+          <div class="btns">
+            <a href="/">Submit</a>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
