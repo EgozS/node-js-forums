@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-<title><%= title %></title>
-<link rel="stylesheet" href="../../css/index.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="../../css/index.css" />
+  </head>
+  <body>
+    <header>
+      <a id="top" href="/"><button id="btnT">go back to main page</button></a>
+    </header>
 
-<header>
-<a id="top" href="/"><button id = "btnT">go back to main page</button></a>
-</header>
-
-<main>
-    <%- include('../partials/main'); %>
-</main>
-
-
-</body>
+    <main>
+      <!-- <%- include('../partials/main'); %> -->
+      <div class="content">
+        <h2>post was created by <%= creator %></h2>
+        <div class="question">
+            <h1><%= title %></h1>
+            <div class="rpx"></div>
+            <h3><%= body %></h3>
+            <div class="rpx"></div>
+        </div>
+        <div class="comments">
+        <form action = "/question/<%= name %>?id=<%= id %>/comments" method = "post">
+            <textarea name="comment" placeholder="Comment" id = "comment"></textarea>
+            <input type="submit" id = "btn-snd" value = "Submit Comment">
+        </form>
+        
+        <p class="text-center text-muted">&copy; Copyright 2022 Skep</p>
+    </div>
+    </main>
+  </body>
 </html>
