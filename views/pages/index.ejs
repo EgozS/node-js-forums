@@ -1,16 +1,20 @@
 <html>
   <head>
-    <link rel="stylesheet" href="../../css/index.css" />
+    <title>StackAe</title>
+    <link rel="stylesheet" href="../../css/index.css"/>
+    <link rel="stylesheet" href="../../css/dropdown.css"/>
   </head>
   <body>
     <div class="header">
       <div>
         <a id="top" href="/login"><button class="btnT">login</button></a>
       </div>
-      <div>
-        <a id="user" href="/panel"
-          ><button class="btnT">Logged in as <%= username %></button></a
-        >
+      <div class = "dropdown">
+        <button class="btnTD">Logged in as <%= username %></button>
+        <div class="dropdown-content">
+          <a id="user" href="/panel">Panel</a>
+          <form action="/logout" method="post"><input type = "submit" id = "usert" value = "logout"></form>
+        </div>
       </div>
     </div>
 
