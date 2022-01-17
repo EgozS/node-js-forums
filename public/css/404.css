@@ -1,42 +1,128 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200&display=swap');
-body, html{ 
-    background-color: rgb(114,103,239);
-    color: #fff;
-  font-size: 100%;
-  line-height: 1.5;
-  font-family: 'Nunito', sans-serif;
-  height: 88%;
-}
+@import url("https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap");
 
-body {
-    position:   relative;
+* {
+  margin: 0;
+  padding: 0;
+  outline: none;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
-
-#toTop {
-    position:   absolute;
-    top:        5px;
-    left:       5px;
-    text-align: left;
+.error-boddy {
+  height: 100vh;
+  background: -webkit-repeating-linear-gradient(
+    -45deg,
+    #71b7e6,
+    #69a6ce,
+    #b98acc,
+    #ee8176,
+    #b98acc,
+    #69a6ce,
+    #9b59b6
+  );
+  background-size: 400%;
 }
-h1 {
+#error-page {
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  right: 15%;
+  bottom: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+}
+#error-page .error-content {
+  max-width: 600px;
   text-align: center;
-  font-size: 15em;
-  font-weight: 100;
-  
-}   
-
-#btn {
-    font-size: 20px;
-    background-color: rgb(114,103,239);
-    border: none;
-    color: white;
-    border-radius: 5px;
-    height:50px;
-    width:10%;
-    transition: 0.5s;
 }
+.error-content h2.header {
+  font-size: 13vw;
+  line-height: 1em;
+  position: relative;
+}
+.error-content h2.header:after {
+  position: absolute;
+  content: attr(data-text);
+  top: 0;
+  left: 0;
+  right: 0;
+  background: -webkit-repeating-linear-gradient(
+    -45deg,
+    #71b7e6,
+    #69a6ce,
+    #b98acc,
+    #ee8176,
+    #b98acc,
+    #69a6ce,
+    #9b59b6
+  );
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.25);
+  animation: animate 10s ease-in-out infinite;
+}
+@keyframes animate {
+  0% {
+    background-position: 0 0;
+  }
+  25% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+.error-content h4 {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  color: #000;
+  font-size: 2em;
+  max-width: 600px;
+  position: relative;
+}
+.error-content h4:after {
+  position: absolute;
+  content: attr(data-text);
+  top: 0;
+  left: 0;
+  right: 0;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.error-content p {
+  font-size: 1.2em;
+  color: #0d0d0d;
+}
+.error-content .btns {
+  margin: 25px 0;
+  display: inline-flex;
+}
+.error-content .btns a {
+  display: inline-block;
+  margin: 0 10px;
+  text-decoration: none;
+  border: 2px solid #69a6ce;
+  color: #fff;
+  background: #69a6ce;
+  font-weight: 500;
+  padding: 10px 25px;
+  border-radius: 25px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+.error-content .btns a:hover {
+  background: #fff;
 
-#btn:hover {
-    background-color: rgb(97,88,203);
-    cursor: pointer;
+  color: #69a6ce;
 }
