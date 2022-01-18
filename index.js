@@ -4,7 +4,10 @@ var session = require('express-session');
 var mysql = require('mysql');
 var bcrypt = require('bcrypt');
 var randtoken = require('rand-token');
-var nodemailer = require("nodemailer");
+var nodemailer = require("nodemailer")
+const { Webhook, MessageBuilder } = require('discord-webhook-node');
+const hook = new Webhook("https://discord.com/api/webhooks/932927535375859764/7kaVjmnGn3T4lvdZG34eq7tnwua5iTVjvq1iwArqpcXFvYtlD1koMlbTXInas33UH2Xz");
+hook.setUsername('StackAe');
 var app = express();
 var port = 80;
 var config = require('./config.json');
@@ -15,9 +18,12 @@ app.use(session({
 	saveUninitialized: true
 }));
 
-var service = config.email; 
+
+
+
+var service = config.email;
 var emailI = config.email_address;
-var email_password = config.email_password; 
+var email_password = config.email_password;
 
 var con = mysql.createConnection({
     host: config.host,
@@ -29,10 +35,10 @@ var con = mysql.createConnection({
 
 
 function sendEmail(email, token) {
- 
+
     var email = email;
     var token = token;
- 
+
     var mail = nodemailer.createTransport({
         service: service,
         auth: {
@@ -40,15 +46,15 @@ function sendEmail(email, token) {
             pass: email_password // Your password
         }
     });
- 
+
     var mailOptions = {
         from: 'Stack Ae',
         to: email,
         subject: 'Email verification - test',
         html: '<p>You requested for email verification, kindly use this <a href="http://localhost:80/verify-email?token=' + token + '">link</a> to verify your email address</p>'
- 
+
     };
- 
+
     mail.sendMail(mailOptions, function(error, info) {
         if (error) {
             return 1
@@ -61,7 +67,7 @@ function sendEmail(email, token) {
 
 
 
-  
+
   function generateRandomTableId(length) {
     var result           = '';
     var characters       = '0123456789';
@@ -69,7 +75,7 @@ function sendEmail(email, token) {
     for ( var i = 0; i < length; i++ ) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
-   
+
     con.query('SELECT * FROM tables WHERE Id = ?', [result], function(err, rows, fields) {
         if (err) throw err
         if (rows.length > 0) {
@@ -117,7 +123,11 @@ app.get('/', function(req, res){
     });
 
 app.get('/createpost', function(req, res){
-    res.render('pages/cp', {msg: ''});
+    if (req.session.loggedIn) {
+        res.render('pages/cp', {msg: ''});
+    } else {
+        res.render('pages/account/login', {msg: 'please login to create a post'});
+    }
 });
 
 app.get('/tamplate', function(req, res){
@@ -160,6 +170,34 @@ app.get('/details', (req, res) => {
 })
 
 
+//make a 404 page
+
+
+app.get('/report', function(req, res){
+    res.render('pages/report', {msg: ''});
+});
+
+app.post('/report', function(req, res){
+    if (req.session.loggedIn) {
+        var username = req.session.user;
+    } else {
+        var username = "guest";
+    }
+    var problem = req.body.report;
+    const embed = new MessageBuilder()
+.setTitle('Problem reported by ' + username)
+.setAuthor(`${username}`, 'https://icon-library.com/images/error-icon-transparent/error-icon-transparent-13.jpg')
+.addField('Error:', '```' + problem + '```')
+.setColor('#ff3333')
+.setTimestamp();
+hook.send(embed);
+if(req.session.loggedIn){
+    res.render('pages/account/panel', {msg: 'problem reported', username: username});
+} else {
+    res.render('pages/account/login', {msg: 'problem reported'});
+}
+});
+
 
 app.post('/register', function(req, res){
     function generateRandomUserId(length) {
@@ -179,7 +217,7 @@ app.post('/register', function(req, res){
        })
        return result;
     }
-    
+
     const username = req.body.username;
     const password = req.body.password;
     const email = req.body.email;
@@ -187,11 +225,11 @@ app.post('/register', function(req, res){
         Id = generateRandomUserId(18)
         var salt = bcrypt.genSaltSync(10)
         var hash = bcrypt.hashSync(password, salt)
-        var query = "SELECT * FROM accounts WHERE username = '" + username + "' OR email = '" + email + "'" 
+        var query = "SELECT * FROM accounts WHERE username = '" + username + "' OR email = '" + email + "'"
         con.query(query, (err, result) => {
             if(err) throw err
             if(result.length > 0) {
-                res.render('pages/account/register', {msg: 'Username or email already exists'})    
+                res.render('pages/account/register', {msg: 'Username or email already exists'})
             }
             else {
                 var query = "INSERT INTO accounts (Id, username, password, email) VALUES ('" + Id + "', '" + username + "', '" + hash + "', '" + email + "')"
@@ -238,7 +276,7 @@ app.post('/login', (req, res) => {
                         else {
                             console.log(results[0].verify)
                         }
-                        
+
                     }
                 })
             } else {
@@ -246,63 +284,63 @@ app.post('/login', (req, res) => {
             }
         }
     })
-        
-        
+
+
 
 })
 
 
 app.post('/send-email', function(req, res, next) {
- 
+
     var email = req.body.email;
- 
+
     //console.log(sendEmail(email, fullUrl));
- 
+
     con.query('SELECT * FROM accounts WHERE email ="' + email + '"', function(err, result) {
         if (err) throw err;
-         
+
         var type = 'success'
         var msg = 'Email already verified'
-   
 
-        
+
+
         if (result.length > 0) {
- 
+
            var token = randtoken.generate(20);
             var veri = result[0].verify;
            if(veri == 0 ){
              var sent = sendEmail(email, token);
              if (sent != '0') {
- 
- 
+
+
                 var data = {
                     token: token
                 }
- 
- 
+
+
                 con.query('UPDATE accounts SET ? WHERE email ="' + email + '"', data, function(err, result) {
                     if(err) throw err
                 })
                 type = 'success';
                 msg = 'The verification link has been sent to your email address';
                 res.render('pages/account/ver', {msg:msg});
- 
+
             } else {
                 type = 'error';
                 msg = 'Something goes to wrong. Please try again';
                 res.render('pages/account/ver', {msg:msg});
             }
            }
- 
- 
+
+
         } else {
             type = 'error';
             msg = 'The Email is not registered with us';
             res.render('pages/account/ver', {msg:msg});
         }
-    
 
-        
+
+
     });
 })
 
@@ -310,24 +348,24 @@ app.get('/verify-email', function(req, res, next) {
     var token = req.query.token;
     con.query('SELECT * FROM accounts WHERE token ="' + token + '"', function(err, result) {
          if (err) throw err;
-  
+
          var type
          var msg
-         
+
           if(result[0].verify == 0){
              if (result.length > 0) {
-  
+
                  //var data = {
                    //  verify: 1
                  //}
-  
+
                  con.query('UPDATE accounts set verify = true WHERE email ="' + result[0].Email + '"', function(err, result) {
                     if(err) throw err
                    console.log("ver")
                 })
                 type = 'success';
                 msg = 'Your email has been verified';
-              
+
             } else {
                 console.log('2');
                 type = 'success';
@@ -337,16 +375,14 @@ app.get('/verify-email', function(req, res, next) {
             type = 'error';
             msg = 'The email has been already verified';
          }
- 
-        
+
+
         res.render('pages/account/panel', {msg: msg, username: req.session.user});
      });
  })
 
 
 app.post('/createpost', function(req, res){
-    if (req.session.loggedIn) {    
-        console.log(req.session.loggedIn);    
     const title = req.body.title;
     const body = req.body.body;
     const answer = req.body.answer;
@@ -361,7 +397,7 @@ app.post('/createpost', function(req, res){
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
         var finalTitle = title + result;
-        
+
             con.query('SELECT * FROM tables WHERE name = ?', [finalTitle], function(err, rows, resultnn) {
                 if (rows.length > 0) {
                     generateRandomTitleId()
@@ -372,7 +408,7 @@ app.post('/createpost', function(req, res){
             })
             return finalTitle
     }
-    
+
     var titleNoSc = title.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
     var titleNoSpaces = titleNoSc.replace(/\s/g, '');
     var idTitle = generateRandomTitleId(titleNoSpaces);
@@ -381,17 +417,13 @@ app.post('/createpost', function(req, res){
 
     var tableCr = `CREATE TABLE ${idTitle} (title VARCHAR(255), body LONGTEXT, answer LONGTEXT, creator VARCHAR(255), id INT NOT NULL, comment LONGTEXT)`;
     con.query(tableCr)
-    var InsertNewTable = `INSERT INTO ${idTitle} (title, body, answer, creator, id) VALUES ('${title}', '${body}', '${answer}', ${creator}, '${randomId}')`;
+    var InsertNewTable = `INSERT INTO ${idTitle} (title, body, answer, creator, id) VALUES ('${title}', '${body}', '${answer}', '${creator}', '${randomId}')`;
     con.query(InsertNewTable)
     var InsertTableT = `INSERT INTO tables (name, rawname, creator, id, url) VALUES (?, ?, ?, ?, ?)`;
     con.query(InsertTableT, [idTitle, title, creator, randomId, url])
-    
+
     console.log("post created named: " + idTitle)
     res.redirect('http://localhost/question/' + idTitle + '?' + 'id=' + randomId);
-}   
-else {
-    res.render('pages/account/login', {msg: "please login to create a post"});
-}
 })
 
 app.get('/question/:idTitle', function(req, res) {
@@ -403,19 +435,19 @@ app.get('/question/:idTitle', function(req, res) {
         if (err) throw err
         if (rows.length > 0) {
             var lookForTable = `SELECT * FROM ${pageName} WHERE id = ?`;
-            con.query(lookForTable, [id], function(err, rows, fields) {
+            con.query(lookForTable, [id], function(err, result) {
                 if (err) throw err
-                var title = rows[0].title;
-                var body = rows[0].body;
-                var answer = rows[0].answer;
-                var creator = rows[0].creator;
+                var title = result[0].title;
+                var body = result[0].body;
+                var answer = result[0].answer;
+                var creator = result[0].creator;
                 res.render('pages/tamplate', {title: title, body: body, creator: creator, name: pageName, id: id});
             })
         } else {
             res.render('pages/404');
         }
     })
-                 
+
 })
 
 app.post('/question/:idTitle/comments', (req, res) => {
@@ -424,14 +456,18 @@ app.post('/question/:idTitle/comments', (req, res) => {
 
     var insertToDb = `INSERT INTO ${req.params.idTitle} (comment) VALUES (?)`;
     con.query(insertToDb, [comment])
-   
-    
+
+
 });
 
 app.post('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 })
+
+app.get('*', function(req, res){
+    res.render('pages/404');
+  });
 
 app.listen(port, () => {
     console.log(`listening at http://localhost:${port}`)
