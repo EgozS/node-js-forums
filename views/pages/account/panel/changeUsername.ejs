@@ -1,0 +1,29 @@
+<!--make me a 404 page with basic css-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Change Username</title>
+    <link rel="stylesheet" href="../../../css/ver.css" />
+  </head>
+  <body>
+    <div class="error-boddy">
+      <div id="error-page">
+        <div class="error-content">
+          <h2 class="header" data-text="Change Username">Change Username</h2>
+          <br />
+          <p><%= msg %></p>
+          <div class="btns">
+            <form action = "/changeUsername" method = "post">
+                <label>New username</label>
+                <br>
+              <input type="text" name="newUsername" placeholder="New Username">
+              <input type = "submit" id="submit" value = "Change Username">
+              <a href="/">return home</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

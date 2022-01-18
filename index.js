@@ -261,17 +261,24 @@ app.post('/login', (req, res) => {
                             if (bcrypt.compareSync(password, results[0].Password)) {
                                 res.render('pages/account/ver', {msg: "please verify your email address"})
                             } else {
-                                res.render('pages/account/login', {msg:"Username or Password is invalid"})
+                                res.render('pages/account/login', {msg:"Username or Password are invalid"})
                             }
                         }
                         else if (results[0].verify === "1" || results[0].verify === 1 || results[0].verify === true){
-                            req.session.loggedIn = true;
+                            if (bcrypt.compareSync(password, results[0].Password)) {
+                                req.session.loggedIn = true;
                             req.session.user = username;
                             req.session.email = results[0].Email;
                             req.session.id = results[0].Id;
                             req.session.createdAt = results[0].creationDate;
                             req.session.updatedAt = results[0].lastUpdated;
                             res.render('pages/account/panel', {msg:"Welcome back!", username: username})
+                            }
+                            else {
+                                res.render('pages/account/login', {msg:"Username or Password are invalid"})
+                            }
+                            
+                            
                         }
                         else {
                             console.log(results[0].verify)
@@ -464,6 +471,67 @@ app.post('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 })
+
+app.post('/changePassword', (req, res) => {
+    var oldPassword = req.body.oldPassword;
+    var newPassword = req.body.newPassword;
+    var confirmPassword = req.body.confirmPassword;
+    var user = req.session.user;
+
+    if (newPassword == confirmPassword) {
+        con.query('SELECT * FROM accounts WHERE Username = ?', [user], (req, results) => {
+            if (bcrypt.compareSync(oldPassword, results[0].Password)) {
+                var hash = bcrypt.hashSync(newPassword, 10);
+                con.query('UPDATE accounts SET Password = ? WHERE Username = ?', [hash, user]);
+                res.render('pages/account/panel', {msg: 'Password changed', username: user});
+            }
+             else {
+                res.render('pages/account/panel/changePassword', {msg: 'Wrong password, please try again'});
+            }
+        }
+    )
+    } else {
+        res.render('pages/account/panel/changePassword', {msg: 'Passwords do not match'});
+    }
+})
+
+app.get('/changePassword', (req, res) => {
+    if(req.session.loggedIn) {
+        res.render('pages/account/panel/changePassword', {msg: ''});
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to change password'});
+    }
+})
+
+
+app.post('/changeUsername', (req, res) => {
+    var newUser = req.body.newUsername;
+    var user = req.session.user;
+
+    
+        con.query('SELECT * FROM accounts WHERE Username = ?', [user], (reqs, results) => {
+            if (results > 0) {
+                res.render('changeUsername', {msg: 'Username is already taken'});
+            }
+             else {
+                con.query('UPDATE accounts SET Username = ? WHERE Username = ?', [newUser, user]);
+                req.session.user = newUser;
+                res.render('pages/account/panel', {msg: 'Username changed', username: newUser});
+            }
+        }
+    )
+})
+
+app.get('/changeUsername', (req, res) => {
+    if(req.session.loggedIn) {
+        res.render('pages/account/panel/changeUsername', {msg: ''});
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to change username'});
+    }
+})
+
 
 app.get('*', function(req, res){
     res.render('pages/404');
