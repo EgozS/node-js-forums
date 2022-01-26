@@ -1,0 +1,31 @@
+<!--make me a 404 page with basic css-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Delete account</title>
+    <link rel="stylesheet" href="../../../css/verw.css" />
+  </head>
+  <body>
+    <div class="error-boddy">
+      <div id="error-page">
+        <div class="error-content">
+          <h2 class="header" data-text="Delete Account">Delete Account</h2>
+          <br />
+          <p><%= msg %></p>
+          <div class="btns">
+            <form action = "/deleteAccount" method = "post">
+                <label>WARNING</label>
+                <h1>THIS ACTION CANNOT BE UNDONE</h1>
+                <h3>TO CONTINUE PLEASE TYPE IN YOUR PASSWORD IN THE BOX BELOW</h3>
+                <br>
+              <input type="password" name="password" placeholder="PASSWORD">
+              <input type = "submit" id="submit" value = "delete account">
+              <a href="/">return home</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

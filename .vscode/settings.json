@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "containers-us-west-23.railway.app",
+            "port": 5594,
+            "driver": "MySQL",
+            "name": "ae",
+            "database": "StackAe",
+            "username": "root",
+            "password": "h4pAvKlclzUI7PgEe7uA"
+        }
+    ]
+}

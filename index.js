@@ -383,7 +383,7 @@ app.get('/verify-email', function(req, res, next) {
             msg = 'The email has been already verified';
          }
 
-
+        req.session.loggedIn = true;
         res.render('pages/account/panel', {msg: msg, username: req.session.user});
      });
  })
@@ -523,6 +523,23 @@ app.post('/changeUsername', (req, res) => {
     )
 })
 
+app.post('/deleteAccount', (req, res) => {
+    var user = req.session.user;
+    var password = req.body.password;
+    con.query('SELECT * FROM accounts WHERE Username = ?', [user], (resq, results) => {
+        if (bcrypt.compareSync(password, results[0].Password)) {
+            con.query('DELETE FROM accounts WHERE Username = ?', [user]);
+            con.query('DELETE FROM tables WHERE creator = ?', [user]);
+            req.session.destroy();
+            res.render('pages/account/login', {msg: 'Account deleted'});
+            res.render('pages/account/ver', {msg: "Account deleted :("})
+        } else {
+            res.render('pages/account/deleteAccount', {msg:"Password is invalid"})
+        }
+    })
+    
+})
+
 app.get('/changeUsername', (req, res) => {
     if(req.session.loggedIn) {
         res.render('pages/account/panel/changeUsername', {msg: ''});
@@ -532,6 +549,15 @@ app.get('/changeUsername', (req, res) => {
     }
 })
 
+app.get('/deleteAccount', (req, res) => {
+    if(req.session.loggedIn) {
+        res.render('pages/account/panel/deleteAccount', {msg: ''});
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to delete your account account'});
+    }    
+});
+    
 
 app.get('*', function(req, res){
     res.render('pages/404');
