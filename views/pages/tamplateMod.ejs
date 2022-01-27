@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="../../css/index.css" />
+    <style>
+      .btnW {
+      font-size: 25px;
+      background-color: #ff3333;
+      border: solid 1px;
+      color: white;
+      border-radius: 5px;
+      width: 40%;
+      padding: 10px;
+      transition: 0.5s;
+      transition: 0.5s;
+      height: 50px;
+    }
+    .btnW:hover {
+      background-color: rgb(204, 51, 51);
+      cursor: pointer;
+    }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a id="top" href="/"><button class="btnT">go back to main page</button></a>
+    </header>
+
+    <main>
+      <%- include('../partials/mainMod'); %>
+      
+    </main>
+  </body>
+</html>

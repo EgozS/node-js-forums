@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../../../css/index.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <a id="top" href="/"><button class="btnT">main page</button></a>
+      </div>
+      <div>
+        <form action="/logout" method="post">
+          <input type="submit" class="btnT" value="logout" />
+        </form>
+      </div>
+    </div>
+
+    <div class="panel-wrapper">
+      <h3>Moderator panel</h3>
+      <p><%= msg %></p>
+      <div class="postcard-title"><h1>welcome <%= username %></h1></div>
+      <span
+        style="display: flex; border-top: solid 1px lightgray; margin: 35px 0px"
+      ></span>
+      <div class="buttons" style="display: flex; justify-content: space-around">
+        <div class="oneSide">
+          <form target="_blank" action="/banAccount" method="post">
+            <input type="submit" class="btnT round" value="Ban an account" 
+            onclick="window.location.href = '/panelAdmin/banAccount';"/>
+          </form>
+          <form target="_blank" action="/change-username" method="post">
+            <input type="submit" class="btnT round" value="Change username" 
+            onclick="window.location.href = '/panelAdmin/changeUsername';"/>
+          </form>
+        </div>
+        <!--make this button red (warning)-->
+        <div class="secondSide">
+          <style>
+            .btnW {
+            font-size: 25px;
+            background-color: #ff3333;
+            border: solid 1px;
+            color: white;
+            border-radius: 5px;
+            padding: 10px;
+            transition: 0.5s;
+            margin: 10px 0 0 10px;
+            transition: 0.5s;
+            height: 90px;
+          }
+          .btnW:hover {
+            background-color: rgb(204, 51, 51);
+            cursor: pointer;
+          }
+          </style>
+          <form target="_blank" action="/giveMod" method="post">
+            <input
+              type="submit"
+              class="btnW round"
+              value="Give Moderator"
+              onclick="window.location.href = '/panelAdmin/giveMod';"
+              />
+          </form>
+          <a id="top" href="/details"
+            ><button class="btnT round">View account details</button></a
+          >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

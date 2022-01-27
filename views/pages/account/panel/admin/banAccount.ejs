@@ -1,0 +1,34 @@
+<!--make me a 404 page with basic css-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ban account</title>
+    <link rel="stylesheet" href="../../../../css/verw.css" />
+  </head>
+  <body>
+    <div class="error-boddy">
+      <div id="error-page">
+        <div class="error-content">
+          <h2 class="header" data-text="Ban account">Ban account</h2>
+          <br />
+          <p><%= msg %></p>
+          <div class="btns">
+            <form action = "/panelAdmin/banAccount" method = "post">
+                <label>ban target (username)</label>
+                <br>
+              <input type="text" name="username" placeholder="target's username">
+                <br>
+                <label>reason for ban</label>
+                <br>
+              <input type="text" name="Reason" placeholder="reason for ban">
+                <br>
+              <input type = "submit" id="submit" value = "ban user">
+              <a href="/panelAdmin">fuck go back</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

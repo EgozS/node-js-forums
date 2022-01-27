@@ -1,3 +1,4 @@
+var config = require('./config.json');
 var bodyParser = require('body-parser');
 var express = require('express');
 var session = require('express-session');
@@ -6,14 +7,14 @@ var bcrypt = require('bcrypt');
 var randtoken = require('rand-token');
 var nodemailer = require("nodemailer")
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
-const hook = new Webhook("https://discord.com/api/webhooks/932927535375859764/7kaVjmnGn3T4lvdZG34eq7tnwua5iTVjvq1iwArqpcXFvYtlD1koMlbTXInas33UH2Xz");
+const hook = new Webhook(config.discord_webhook);
 hook.setUsername('StackAe');
 var app = express();
 var port = 80;
-var config = require('./config.json');
+
 
 app.use(session({
-	secret: 'secret',
+	secret: config.sessions_secret,
 	resave: true,
 	saveUninitialized: true
 }));
@@ -98,75 +99,140 @@ app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 
 app.get('/', function(req, res){
-
-    // var getPosts = "SELECT * FROM tables";
-    // con.query(getPosts, function(err, result){
-    //     if(err) throw err;
-    //     var post1T = result[0].rawname;
-    //     var post1C = result[0].creator;
-    //     var post1U = result[0].url;
-    //     var post2T = result[1].rawname;
-    //     var post2C = result[1].creator;
-    //     var post2U = result[1].url;
-    //     var post3T = result[2].rawname;
-    //     var post3C = result[2].creator;
-    //     var post3U = result[2].url;
-    //     console.log(post1T)
-    //     res.render('pages/index', {post1T: post1T, post1C: post1C, post1U: post1U, post2T: post2T, post2C: post2C, post2U: post2U, post3T: post3T, post3C: post3C, post3U: post3U});
-    // });
+    
     if (req.session.loggedIn) {
-        res.render('pages/index', {username: req.session.user});
-        console.log(req.session.user)
-    } else {
-        res.render('pages/index', {username: "guest"});
-        console.log(req.session.user)
+        con.query('SELECT * FROM accounts WHERE Username ="' + req.session.user + '"', function(err, result) {
+            if(result.length > 0) {
+            var banned = result[0].banned;
+            var username = result[0].Username;
+            console.log(username)
+            console.log(banned)
+            if (banned == 1){
+                req.session.banned = 1;
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                res.render('pages/index', {username: req.session.user, msg: ''});
+            }
+        }
+        else {
+            res.render('pages/index', {username: req, msg: 'error, please try again'});
+        }
+        })
+    }
+    else {
+        res.render('pages/index', {username: "guest", msg: ""});
     }
     });
 
 app.get('/createpost', function(req, res){
     if (req.session.loggedIn) {
-        res.render('pages/cp', {msg: ''});
-    } else {
+        var sql = `SELECT * FROM accounts WHERE Username = ?`;
+        con.query(sql, [req.session.user], function(err, result) {
+            if (err) throw err;
+           var banned = req.session.banned;
+            if (banned){
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                res.render('pages/cp', {msg: ''});
+            }
+        })
+    }
+    else {
         res.render('pages/account/login', {msg: 'please login to create a post'});
     }
 });
 
-app.get('/tamplate', function(req, res){
-    res.render('pages/tamplate', {title: '', body: ''});
-});
-
 app.get('/login', function(req, res){
-    res.render('pages/account/login', {msg: ''});
+    if (req.session.loggedIn) {
+        var sql = `SELECT * FROM accounts WHERE Username = ?`;
+        con.query(sql, [req.session.user], function(err, result) {
+            if (err) throw err;
+           var banned = req.session.banned;
+            if (banned == 1){
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                res.render('pages/index', {username: req.session.user, msg: 'you are already logged in!'});
+            }
+        })
+    }
+    else {
+        res.render('pages/account/login', {msg: ''});
+    }
+    
 });
 
 app.get('/register', function(req, res){
-    res.render('pages/account/register', {msg: ''});
+    if (req.session.loggedIn) {
+        var sql = `SELECT * FROM accounts WHERE Username = ?`;
+        con.query(sql, [req.session.user], function(err, result) {
+            if (err) throw err;
+           var banned = req.session.banned;
+            if (banned == 1){
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                res.render('pages/index', {username: req.session.user, msg: 'you already have an account!'});
+            }
+        })
+    }
+    else {
+        res.render('pages/account/register', {msg: ''});
+    }
 });
 
 app.get('/ver', (req, res) => {
-    res.render('pages/index')
+    res.redirect('/')
 })
 
 //get panel from pages/account/panel
 app.get('/panel', function(req, res){
-    username = req.session.user;
-    if(req.session.loggedIn){
-    res.render('pages/account/panel', {msg: 'welcome back', username: username});
-    } else {
-    res.render('pages/account/login', {msg: 'please login first'});
+    var username = req.session.user;
+    if (req.session.loggedIn) {
+        if(req.session.mod) {
+            res.render('pages/account/panelAdmin', {msg: 'welcome back mod', username: username});
+        }
+        var sql = `SELECT * FROM accounts WHERE Username = ?`;
+        con.query(sql, [req.session.user], function(err, result) {
+            if (err) throw err;
+           var banned = req.session.banned;
+            if (banned == 1){
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                res.render('pages/account/panel', {msg: 'welcome back', username: username});
+            }
+        })
     }
+    else {
+        res.render('pages/account/login', {msg: 'please login first'});
+    }
+
 });
 
 app.get('/details', (req, res) => {
-    if(req.session.loggedIn){
-        var username = req.session.user;
-        var email = req.session.email;
-        var id = req.session.id;
-        var createdAt = req.session.createdAt;
-        var updatedAt = req.session.updatedAt;
-    res.render('pages/account/details', {username: username, email: email, createdAt: createdAt, updatedAt: updatedAt, id: id});
-    } else {
-    res.render('pages/account/login', {msg: 'please login first'});
+    if (req.session.loggedIn) {
+        var sql = `SELECT * FROM accounts WHERE Username = ?`;
+        con.query(sql, [req.session.user], function(err, result) {
+            if (err) throw err;
+           var banned = req.session.banned;
+            if (banned == 1){
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                var username = req.session.user;
+                var email = req.session.email;
+                var id = req.session.id;
+                var createdAt = req.session.createdAt;
+                var updatedAt = req.session.updatedAt;
+                res.render('pages/account/details', {username: username, email: email, createdAt: createdAt, updatedAt: updatedAt, id: id});
+            }
+        })
+    }
+    else {
+        res.render('pages/account/login', {msg: 'please login first'});
     }
 })
 
@@ -189,7 +255,7 @@ app.post('/report', function(req, res){
 .setTitle('Problem reported by ' + username)
 .setAuthor(`${username}`, 'https://icon-library.com/images/error-icon-transparent/error-icon-transparent-13.jpg')
 .addField('Error:', '```' + problem + '```')
-.setColor('#ff3333')
+.setColor('#eed202')
 .setTimestamp();
 hook.send(embed);
 if(req.session.loggedIn){
@@ -224,6 +290,7 @@ app.post('/register', function(req, res){
     const email = req.body.email;
     function register(username, password, email) {
         Id = generateRandomUserId(18)
+        if(password.length < 8){ res.render('pages/account/register', {msg: 'password must be at least 8 characters long'}); }
         var salt = bcrypt.genSaltSync(10)
         var hash = bcrypt.hashSync(password, salt)
         var query = "SELECT * FROM accounts WHERE username = '" + username + "' OR email = '" + email + "'"
@@ -268,12 +335,29 @@ app.post('/login', (req, res) => {
                         else if (results[0].verify === "1" || results[0].verify === 1 || results[0].verify === true){
                             if (bcrypt.compareSync(password, results[0].Password)) {
                                 req.session.loggedIn = true;
-                            req.session.user = username;
-                            req.session.email = results[0].Email;
-                            req.session.id = results[0].Id;
-                            req.session.createdAt = results[0].creationDate;
-                            req.session.updatedAt = results[0].lastUpdated;
-                            res.render('pages/account/panel', {msg:"Welcome back!", username: username})
+                                req.session.email = results[0].Email;
+                                req.session.id = results[0].Id;
+                                req.session.createdAt = results[0].creationDate;
+                                req.session.updatedAt = results[0].lastUpdated;
+                                con.query('SELECT * FROM accounts WHERE Username ="' + username + '"', function(err, result) {
+                                    if (err) throw err;
+                                    req.session.mod = result[0].staff;
+                                    req.session.banned = result[0].banned;
+                                    if(req.session.mod == true) {
+                                        var usernameE = username + ' (Moderator)';
+                                        req.session.rawUser = username;
+                                        req.session.user = usernameE;
+                                        res.redirect('/panel')
+                                    }
+                                    else {
+                                        req.session.user = username;
+                                        if (req.session.banned == 0){
+                                        res.render('pages/account/panel', {msg:"Welcome back!", username: req.session.user})
+                                        } else {
+                                            res.render('pages/index', {username: req.session.user, msg: "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"})
+                                        }
+                                    }
+                                })
                             }
                             else {
                                 res.render('pages/account/login', {msg:"Username or Password are invalid"})
@@ -282,7 +366,6 @@ app.post('/login', (req, res) => {
                             
                         }
                         else {
-                            console.log(results[0].verify)
                         }
 
                     }
@@ -369,13 +452,12 @@ app.get('/verify-email', function(req, res, next) {
 
                  con.query('UPDATE accounts set verify = true WHERE email ="' + result[0].Email + '"', function(err, result) {
                     if(err) throw err
-                   console.log("ver")
                 })
                 type = 'success';
                 msg = 'Your email has been verified';
 
             } else {
-                console.log('2');
+            
                 type = 'success';
                 msg = 'The email has already verified';
             }
@@ -385,6 +467,9 @@ app.get('/verify-email', function(req, res, next) {
          }
 
         req.session.loggedIn = true;
+        con.query('SELECT * FROM accounts WHERE Username ="' + result[0].Email + '"', function(err, result) {
+            if (err) throw err;
+        })
         res.render('pages/account/panel', {msg: msg, username: req.session.user});
      });
  })
@@ -395,6 +480,7 @@ app.post('/createpost', function(req, res){
     const body = req.body.body;
     const answer = req.body.answer;
     const answerc = req.body.answerc;
+    var mod = req.session.mod;
     var randomId = generateRandomTableId(9);
     function generateRandomTitleId(title) {
       var length = 9;
@@ -420,7 +506,7 @@ app.post('/createpost', function(req, res){
     var titleNoSc = title.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
     var titleNoSpaces = titleNoSc.replace(/\s/g, '');
     var idTitle = generateRandomTitleId(titleNoSpaces);
-    var url = 'http://localhost/question' + idTitle + '?' + 'id=' + randomId;
+    var url = 'http://localhost/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod;
     var creator = req.session.user;
 
     var tableCr = `CREATE TABLE ${idTitle} (title VARCHAR(255), body LONGTEXT, answer LONGTEXT, creator VARCHAR(255), id INT NOT NULL, comment LONGTEXT)`;
@@ -431,11 +517,13 @@ app.post('/createpost', function(req, res){
     con.query(InsertTableT, [idTitle, title, creator, randomId, url])
 
     console.log("post created named: " + idTitle)
-    res.redirect('http://localhost/question/' + idTitle + '?' + 'id=' + randomId);
+    
+    res.redirect('http://localhost/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod);
 })
 
 app.get('/question/:idTitle', function(req, res) {
    var id = req.query.id;
+   var mod = req.query.mod;
    var pageName = req.params.idTitle;
 
    var lookForTable = `SELECT * FROM tables WHERE id = ?`;
@@ -449,7 +537,15 @@ app.get('/question/:idTitle', function(req, res) {
                 var body = result[0].body;
                 var answer = result[0].answer;
                 var creator = result[0].creator;
-                res.render('pages/tamplate', {title: title, body: body, creator: creator, name: pageName, id: id});
+                if (mod && req.session.mod) {
+                    req.session.postId = id
+                    req.session.postName = pageName
+                    res.render('pages/tamplateMod', {title: title, body: body, creator: creator, name: pageName, id: id});
+                }
+                else{
+                    res.render('pages/tamplate', {title: title, body: body, creator: creator, name: pageName, id: id});
+                }
+                
             })
         } else {
             res.render('pages/404');
@@ -468,12 +564,18 @@ app.post('/question/:idTitle/comments', (req, res) => {
 
 });
 
+
 app.post('/logout', (req, res) => {
+    var banned = req.session.banned;
+    if (banned) {
+        res.render('pages/index', {msg: 'huh? whats that? you think you can just logout? funny', username: req.session.user + ' (banned LOL)'});
+    } else {
     req.session.destroy();
     res.redirect('/');
+    }
 })
 
-app.post('/changePassword', (req, res) => {
+app.post('/panel/changePassword', (req, res) => {
     var oldPassword = req.body.oldPassword;
     var newPassword = req.body.newPassword;
     var confirmPassword = req.body.confirmPassword;
@@ -496,9 +598,19 @@ app.post('/changePassword', (req, res) => {
     }
 })
 
-app.get('/changePassword', (req, res) => {
-    if(req.session.loggedIn) {
-        res.render('pages/account/panel/changePassword', {msg: ''});
+app.get('/panel/changePassword', (req, res) => {
+    if (req.session.loggedIn) {
+        var sql = `SELECT * FROM accounts WHERE Username = ?`;
+        con.query(sql, [req.session.user], function(err, result) {
+            if (err) throw err;
+           var banned = req.session.banned;
+            if (banned == 1){
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                res.render('pages/account/panel/changePassword', {msg: ''});
+            }
+        })
     }
     else {
         res.render('pages/account/login', {msg: 'you must be logged in to change password'});
@@ -506,7 +618,7 @@ app.get('/changePassword', (req, res) => {
 })
 
 
-app.post('/changeUsername', (req, res) => {
+app.post('/panel/changeUsername', (req, res) => {
     var newUser = req.body.newUsername;
     var user = req.session.user;
 
@@ -517,14 +629,14 @@ app.post('/changeUsername', (req, res) => {
             }
              else {
                 con.query('UPDATE accounts SET Username = ? WHERE Username = ?', [newUser, user]);
-                req.session.user = newUser;
+                req.session.user = username;
                 res.render('pages/account/panel', {msg: 'Username changed', username: newUser});
             }
         }
     )
 })
 
-app.post('/deleteAccount', (req, res) => {
+app.post('/panel/deleteAccount', (req, res) => {
     var user = req.session.user;
     var password = req.body.password;
     con.query('SELECT * FROM accounts WHERE Username = ?', [user], (resq, results) => {
@@ -541,7 +653,7 @@ app.post('/deleteAccount', (req, res) => {
     
 })
 
-app.get('/changeUsername', (req, res) => {
+app.get('/panel/changeUsername', (req, res) => {
     if(req.session.loggedIn) {
         res.render('pages/account/panel/changeUsername', {msg: ''});
     }
@@ -550,15 +662,158 @@ app.get('/changeUsername', (req, res) => {
     }
 })
 
-app.get('/deleteAccount', (req, res) => {
-    if(req.session.loggedIn) {
-        res.render('pages/account/panel/deleteAccount', {msg: ''});
+app.get('/panel/deleteAccount', (req, res) => {
+    if (req.session.loggedIn) {
+        var sql = `SELECT * FROM accounts WHERE Username = ?`;
+        con.query(sql, [req.session.user], function(err, result) {
+            if (err) throw err;
+           var banned = req.session.banned;
+            if (banned == 1){
+                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
+                res.render('pages/index', {username: req.session.user, msg: bannedt});
+            } else {
+                res.render('pages/account/panel/deleteAccount', {msg: ''});
+            }
+        })
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to delete your account account'});
+        res.render('pages/account/login', {msg: 'you must be logged in to delete your account account'});   
     }    
 });
+
+app.get('/panelAdmin', (req, res) => {
+    if(req.session.loggedIn) {
+        if(req.session.mod == true) {
+            res.render('pages/account/panelAdmin', {msg: '', username: req.session.user});
+        }
+        else {
+            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page', username: req.session.user});
+        }  
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+    }
+})
+
+app.post('/deletePost', (req, res) => {
+    var id = req.session.postId
+    var pageName = req.session.postName
+    console.log(id, pageName);
+    var lookForTable = `SELECT * FROM tables WHERE id = ?`;
+    con.query(lookForTable, [id], function(reqs, results) {
+        if (results.length > 0) {
+            var removeFromCol = `DELETE FROM tables WHERE id = ?`;
+            con.query(removeFromCol, [id]);
+            var removePost = `DROP TABLE ${results[0].name}`;
+            con.query(removePost);
+            res.render('pages/account/panelAdmin', {msg: `Post deleted ${pageName}`, username: req.session.user});
+        } else {
+            console.log("error?")
+            res.render('pages/404');
+        }
+    }
+
+)
+})
+
+app.post('/panelAdmin/banAccountP', (req, res) => {
+    var pageName = req.session.postName;
+    var sql = `SELECT * FROM ${pageName}`;
+    var username = req.session.user;
+    con.query(sql, function(reqs, results) {
+        if (results.length > 0){
+            var creator = results[0].creator;
+            var sql = `UPDATE accounts SET banned = 1 WHERE Username = ?`;
+            con.query(sql, [creator]);
+            const embed = new MessageBuilder()
+            .setTitle(creator + ' was banned by ' + username)
+            .setAuthor(`${username}`, 'https://cdn.discordapp.com/attachments/801522488689164359/936255701905444924/image_2022-01-27_154506.png')
+            .addField('banned for post:', '```' + pageName + '```')
+            .setColor('#ff3333')
+            .setTimestamp();
+            hook.send(embed);
+            res.render('pages/account/panelAdmin', {msg: `Account banned ${creator}`, username: req.session.user});
+        }
+        else {
+            res.render('pages/404');
+        }
+    })
+})
+
+
+app.get('/panelAdmin/banAccount', (req, res) => {
+    if(req.session.loggedIn) {
+        if(req.session.mod == true) {
+            res.render('pages/account/panel/admin/banAccount', {msg: ''});
+        }
+        else {
+            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page'});
+        }  
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+    }
+});
+app.post('/panelAdmin/banAccount', (req, res) => {
+    var username = req.session.user;
+    var creator = req.body.username;
+    var reason = req.body.Reason;
+        var sql = `UPDATE accounts SET banned = 1 WHERE Username = ?`;
+        con.query(sql, [creator], function(err, result) {
+            if (err) {res.render('pages/account/panel/admin/banAccount', {msg: 'Account dose not exist', username: req.session.user});};
+                const embed = new MessageBuilder()
+            .setTitle(creator + 'was banned by' + username)
+            .setAuthor(`${username}`, 'https://cdn.discordapp.com/attachments/801522488689164359/936255701905444924/image_2022-01-27_154506.png')
+            .addField('banned for:', '```' + reason + '```')
+            .setColor('#ff3333')
+            .setTimestamp();
+            hook.send(embed);
+        res.render('pages/account/panelAdmin', {msg: `${creator} just got banned L`, username: req.session.user});
+            
+            
+                
+        });
+        
+})
+app.get('/panelAdmin/giveMod', (req, res) => {
+    if(req.session.loggedIn) {
+        if(req.session.mod) {
+            res.render('pages/account/panel/admin/giveMod', {msg: ''});
+        }
+        else {
+            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page'});
+        }  
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+    }
+});
+app.post('/panelAdmin/giveMod', (req, res) => {
+    if(req.session.loggedIn && req.session.mod) {
+        var user = req.body.username;
+    var password = req.body.password;
+    con.query('SELECT * FROM accounts WHERE Username = ?', [req.session.rawUser], (resq, results) => {
+        if (results.length > 0) {
+        if (bcrypt.compareSync(password, results[0].Password)) {
+            var sql = `update accounts SET staff = true WHERE Username = ?`;
+            con.query(sql, [user]);
+            res.render('pages/account/panelAdmin', {msg: `${user} is now a moderator`, username: req.session.user});
+            console.log(user + ' is now a moderator, promoted by' + req.session.user);
+        } else {
+            res.render('pages/account/panel/admin/giveMod', {msg:"Password is invalid"})
+        }
+    } else {
+        console.log(results)
+        console.log(req.session.user)
+        res.render('pages/account/panel/admin/giveMod', {msg:"Account does not exist"})
+    }
+    })
     
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+    }
+})
 
 app.get('*', function(req, res){
     res.render('pages/404');

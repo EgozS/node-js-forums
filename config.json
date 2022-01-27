@@ -7,5 +7,9 @@
 
     "email": "gmail",
     "email_address": "poopcar48x@gmail.com",
-    "email_password": "Mandem400"
+    "email_password": "Mandem400",
+
+    "sessions_secret": "secret",
+
+    "discord_webhook": "https://discord.com/api/webhooks/932927535375859764/7kaVjmnGn3T4lvdZG34eq7tnwua5iTVjvq1iwArqpcXFvYtlD1koMlbTXInas33UH2Xz"
 }

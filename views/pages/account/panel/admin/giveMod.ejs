@@ -1,0 +1,34 @@
+<!--make me a 404 page with basic css-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ban Account</title>
+    <link rel="stylesheet" href="../../../../css/verw.css" />
+  </head>
+  <body>
+    <div class="error-boddy">
+      <div id="error-page">
+        <div class="error-content">
+          <h2 class="header" data-text="Promote account">Promote account</h2>
+          <br />
+          <p><%= msg %></p>
+          <div class="btns">
+            <form action = "/panelAdmin/giveMod" method = "post">
+                <label>Who would you like to give moderator powers</label>
+                <br>
+              <input type="text" name="username" placeholder="target's username">
+                <br>
+                <label>please enter your password to confirm giving mod</label>
+                <br>
+              <input type="password" name="password" placeholder="password">
+                <br>
+              <input type = "submit" id="submit" value = "give mod">
+              <a href="/panelAdmin">fuck go back</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

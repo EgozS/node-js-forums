@@ -1,0 +1,20 @@
+<div class="template-wrapper">
+    <form action="/deletePost" method="post">
+        <input type="submit" class="btnW" value="Delete post" />
+    </form>
+    <form action="/banAccountP" method="post">
+        <input type="submit" class="btnW" value="Ban user" />
+    </form>
+    <h2>post was created by <%= creator %></h2>
+    <div class="question">
+        <h1><%= title %></h1>
+        <div class="rpx"></div>
+        <h3><%= body %></h3>
+        <div class="rpx"></div>
+    </div>
+    <div class="comments">
+    <form action = "/question/<%= name %>?id=<%= id %>/comments" method = "post">
+        <textarea name="comment" placeholder="Comment" id = "comment"></textarea>
+        <input type="submit" id = "btn-snd" value = "Submit Comment">
+    </form>
+</div>

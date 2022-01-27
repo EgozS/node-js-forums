@@ -15,6 +15,7 @@
     </div>
 
     <div class="panel-wrapper">
+      
       <p><%= msg %></p>
       <div class="postcard-title"><h1>welcome <%= username %></h1></div>
       <span
@@ -24,11 +25,11 @@
         <div class="oneSide">
           <form target="_blank" action="/change-password" method="post">
             <input type="submit" class="btnT round" value="Change password" 
-            onclick="window.location.href = '/changePassword';"/>
+            onclick="window.location.href = '/panel/changePassword';"/>
           </form>
           <form target="_blank" action="/change-username" method="post">
             <input type="submit" class="btnT round" value="Change username" 
-            onclick="window.location.href = '/changeUsername';"/>
+            onclick="window.location.href = '/panel/changeUsername';"/>
           </form>
         </div>
         <!--make this button red (warning)-->
@@ -56,7 +57,7 @@
               type="submit"
               class="btnW round"
               value="Delete account"
-              onclick="window.location.href = '/deleteAccount';"
+              onclick="window.location.href = '/panel/deleteAccount';"
               />
           </form>
           <a id="top" href="/details"
