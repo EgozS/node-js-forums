@@ -50,6 +50,7 @@ function sendEmail(email, token) {
     var mailOptions = {
         from: 'Stack Ae',
         to: email,
+        //edit email properties here:
         subject: 'Email verification - test',
         html: '<p>You requested for email verification, kindly use this <a href="http://localhost:80/verify-email?token=' + token + '">link</a> to verify your email address</p>'
 
