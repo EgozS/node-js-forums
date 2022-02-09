@@ -9,7 +9,7 @@
     "email_address": "",
     "email_password": "",
 
-    "sessions_secret": "Your-girlfriend-bought-your-favorite-cookie-crisp-cereal-but-forgot-to-get-milk",
+    "sessions_secret": "",
 
-    "discord_webhook": "https://discord.com/api/webhooks/932927535375859764/7kaVjmnGn3T4lvdZG34eq7tnwua5iTVjvq1iwArqpcXFvYtlD1koMlbTXInas33UH2Xz"
+    "discord_webhook": ""
 }
