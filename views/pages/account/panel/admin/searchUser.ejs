@@ -1,0 +1,28 @@
+<!--make me a 404 page with basic css-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Search Users</title>
+    <link rel="stylesheet" href="../../../css/ver.css" />
+  </head>
+  <body>
+    <div class="error-boddy">
+      <div id="error-page">
+        <div class="error-content">
+          <h2 class="header" data-text="Users found:">Users found:</h2>
+          <br/>
+          <p><%= msg %></p>
+          <div class="btns">
+            <form action = "/panelAdmin/searchUser" method="POST">
+                <input type="text" name="username" placeholder="Username or Id">
+                <br>
+                <input type = "submit" id="submit" value = "Search User">               
+                <a href="/">return home</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

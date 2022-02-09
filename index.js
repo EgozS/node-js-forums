@@ -101,27 +101,31 @@ app.set('view engine', 'ejs');
 app.get('/', function(req, res){
     
     if (req.session.loggedIn) {
-        con.query('SELECT * FROM accounts WHERE Username ="' + req.session.user + '"', function(err, result) {
+        con.query('SELECT * FROM accounts WHERE Username ="' + req.session.rawUser + '" OR '+'"' + req.session.user + '"', function(err, result) {
+            if (err) throw err
             if(result.length > 0) {
             var banned = result[0].banned;
-            var username = result[0].Username;
-            console.log(username)
-            console.log(banned)
             if (banned == 1){
                 req.session.banned = 1;
                 var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
                 res.render('pages/index', {username: req.session.user, msg: bannedt});
             } else {
-                res.render('pages/index', {username: req.session.user, msg: ''});
+                con.query('SELECT * FROM tables', function(err, results) {
+                    if (err) throw err
+                    res.render('pages/index', {username: req.session.user, msg: "", tables: results});
+                })
             }
         }
         else {
-            res.render('pages/index', {username: req, msg: 'error, please try again'});
+            res.render('pages/index', {username: req.session.user, msg: 'error loading up top posts, please try again'});
         }
         })
     }
     else {
-        res.render('pages/index', {username: "guest", msg: ""});
+        con.query('SELECT * FROM tables', function(err, results) {
+            if (err) throw err
+            res.render('pages/index', {username: 'guest', msg: "", tables: results});
+        })
     }
     });
 
@@ -132,8 +136,7 @@ app.get('/createpost', function(req, res){
             if (err) throw err;
            var banned = req.session.banned;
             if (banned){
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                res.redirect('/');
             } else {
                 res.render('pages/cp', {msg: ''});
             }
@@ -151,8 +154,7 @@ app.get('/login', function(req, res){
             if (err) throw err;
            var banned = req.session.banned;
             if (banned == 1){
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                res.redirect('/');
             } else {
                 res.render('pages/index', {username: req.session.user, msg: 'you are already logged in!'});
             }
@@ -171,8 +173,7 @@ app.get('/register', function(req, res){
             if (err) throw err;
            var banned = req.session.banned;
             if (banned == 1){
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                res.redirect('/');
             } else {
                 res.render('pages/index', {username: req.session.user, msg: 'you already have an account!'});
             }
@@ -199,8 +200,7 @@ app.get('/panel', function(req, res){
             if (err) throw err;
            var banned = req.session.banned;
             if (banned == 1){
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                res.redirect('/');
             } else {
                 res.render('pages/account/panel', {msg: 'welcome back', username: username});
             }
@@ -219,8 +219,7 @@ app.get('/details', (req, res) => {
             if (err) throw err;
            var banned = req.session.banned;
             if (banned == 1){
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                res.redirect('/');
             } else {
                 var username = req.session.user;
                 var email = req.session.email;
@@ -335,7 +334,7 @@ app.post('/login', (req, res) => {
                         else if (results[0].verify === "1" || results[0].verify === 1 || results[0].verify === true){
                             if (bcrypt.compareSync(password, results[0].Password)) {
                                 req.session.loggedIn = true;
-                                req.session.email = results[0].Email;
+                                req.session.email = results[0].email;
                                 req.session.id = results[0].Id;
                                 req.session.createdAt = results[0].creationDate;
                                 req.session.updatedAt = results[0].lastUpdated;
@@ -354,7 +353,7 @@ app.post('/login', (req, res) => {
                                         if (req.session.banned == 0){
                                         res.render('pages/account/panel', {msg:"Welcome back!", username: req.session.user})
                                         } else {
-                                            res.render('pages/index', {username: req.session.user, msg: "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"})
+                                            res.redirect('/');
                                         }
                                     }
                                 })
@@ -568,7 +567,7 @@ app.post('/question/:idTitle/comments', (req, res) => {
 app.post('/logout', (req, res) => {
     var banned = req.session.banned;
     if (banned) {
-        res.render('pages/index', {msg: 'huh? whats that? you think you can just logout? funny', username: req.session.user + ' (banned LOL)'});
+        res.render('pages/index', {msg: 'huh? whats that? you think you can just logout? funny', username: req.session.user + ' (banned LOL) + ratio'});
     } else {
     req.session.destroy();
     res.redirect('/');
@@ -605,8 +604,7 @@ app.get('/panel/changePassword', (req, res) => {
             if (err) throw err;
            var banned = req.session.banned;
             if (banned == 1){
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                res.redirect('/');
             } else {
                 res.render('pages/account/panel/changePassword', {msg: ''});
             }
@@ -669,8 +667,7 @@ app.get('/panel/deleteAccount', (req, res) => {
             if (err) throw err;
            var banned = req.session.banned;
             if (banned == 1){
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                res.redirect('/');
             } else {
                 res.render('pages/account/panel/deleteAccount', {msg: ''});
             }
@@ -813,6 +810,42 @@ app.post('/panelAdmin/giveMod', (req, res) => {
     else {
         res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
     }
+})
+
+app.get('/panelAdmin/searchUser', (req, res) => {
+    if(req.session.loggedIn) {
+        if(req.session.mod) {
+            res.render('pages/account/panel/admin/searchUser', {msg: ''});
+        }
+        else {
+            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page'});
+        }  
+    }
+    else {
+        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+    }
+})
+app.get('/panel/userRes/', function(req, res) {
+    if(req.session.loggedIn) {
+    res.redirect('/panel');
+    }
+    else if (res.session.mod){
+        res.redirect('/panelAdmin');
+    }
+    else {
+        res.redirect('/')
+    }
+});
+app.post('/panelAdmin/searchUser', (req, res) => {
+    var user = req.body.username;
+    var sql = `SELECT * FROM accounts WHERE Username = ? OR Id = ?`;
+    con.query(sql, [user, user], function(err, result) {
+        if (result.length > 0) {
+            var username = result[0].Username;
+            
+            res.render('pages/account/panel/admin/results/users', {username: username});
+        }
+    })
 })
 
 app.get('*', function(req, res){
