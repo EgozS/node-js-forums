@@ -23,6 +23,9 @@
       <h1>Welcome to stack æ</h1>
       <p style="color:#ff3333"><%= msg %></p>
       <div class="post-textarea">
+        <% if(tables.length <= 0) { %>
+          <textarea placeholder="Something on your mind...?" id = "textareaMain"></textarea>
+        <% } else { %>
         <% for(var i = 0; i < tables.length; i++) { %>
           <div class="card">
             <div class="card-title">
@@ -32,10 +35,9 @@
               <a href= "<%= tables[i].url %>">click here to view post</a>
               <p>published by <%= tables[i].creator %></p>
             </div>
-        </div>
-        
+        </div>        
+          <% } %>
         <% } %>
-      <!--<textarea placeholder="Something on your mind...?" id = "textareaMain"></textarea> -->
       </div>
       <div class="ask-button-container">
         <a id="top" href="/createpost">

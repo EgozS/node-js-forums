@@ -124,6 +124,7 @@ app.get('/', function(req, res){
     else {
         con.query('SELECT * FROM tables', function(err, results) {
             if (err) throw err
+            
             res.render('pages/index', {username: 'guest', msg: "", tables: results});
         })
     }
