@@ -1,15 +1,15 @@
 {
     "host": "localhost",
     "user": "Admin",
-    "password": "",
+    "password": "egoz2007",
     "port": "3306",
     "database": "StackAe",
 
-    "email": "",
-    "email_address": "",
-    "email_password": "",
+    "email": "gmail",
+    "email_address": "poopcar48x@gmail.com",
+    "email_password": "Mandem400",
 
-    "sessions_secret": "",
+    "sessions_secret": "Your-girlfriend-bought-your-favorite-cookie-crisp-cereal-but-forgot-to-get-milk",
 
-    "discord_webhook": ""
+    "discord_webhook": "https://discord.com/api/webhooks/932927535375859764/7kaVjmnGn3T4lvdZG34eq7tnwua5iTVjvq1iwArqpcXFvYtlD1koMlbTXInas33UH2Xz"
 }

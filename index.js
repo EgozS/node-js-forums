@@ -7,6 +7,8 @@ var bcrypt = require('bcrypt');
 var randtoken = require('rand-token');
 var nodemailer = require("nodemailer")
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
+const multer  = require('multer')
+const upload = multer({ dest: './public/data/pfps/' })
 const hook = new Webhook(config.discord_webhook);
 hook.setUsername('StackAe');
 var app = express();
@@ -157,7 +159,10 @@ app.get('/login', function(req, res){
             if (banned == 1){
                 res.redirect('/');
             } else {
-                res.render('pages/index', {username: req.session.user, msg: 'you are already logged in!'});
+                con.query('SELECT * FROM tables', function(err, results) {
+                    if (err) throw err
+                    res.render('pages/index', {username: req.session.user, msg: 'you are already logged in!', tables: results});
+                })
             }
         })
     }
@@ -847,6 +852,124 @@ app.post('/panelAdmin/searchUser', (req, res) => {
             res.render('pages/account/panel/admin/results/users', {username: username});
         }
     })
+})
+
+app.get('/profile/:username', function(req, res) {
+    if(req.session.loggedIn) {
+        if(req.session.user == req.params.username) {
+            var owner = true;
+        }
+        else {
+            var owner = false;
+        }
+    }
+    var username = req.params.username;
+    var sql = `SELECT * FROM accounts WHERE Username = ?`;
+    var rawUsername = username.replace(' (Moderator)', '');
+    con.query(sql, [rawUsername], function(err, result) {
+        if (err) throw err;
+        if (result.length > 0) {
+            var Username = result[0].Username;
+            var bio = result[0].bio;
+            var creationDate = result[0].creationDate;
+            var email = result[0].email;
+            var image = result[0].image;
+            if (image == null || image == "" || image == undefined) {
+                image = 'https://i.pinimg.com/550x/18/b9/ff/18b9ffb2a8a791d50213a9d595c4dd52.jpg';
+            }
+            msg = "";
+            if (result[0].banned == 1) {
+                var msg = "account is banned!";
+            }
+            const obj = {username: Username, bio: bio, creationDate: creationDate, email: email, image: image, msg: msg, owner: owner, userUrl: username};
+            res.render('pages/account/panel/profile/profile', {obj: obj});
+        }
+        else {
+            res.redirect('/404');
+        }
+    })
+})
+app.post('/profile/:username/edit', function(req, res) {
+    var profileName = req.params.username;
+    var rawUsername = profileName.replace(' (Moderator)', '');
+    var sql = `SELECT * FROM accounts WHERE Username = ?`;
+    if(req.session.loggedIn) {
+        if(req.session.user == req.params.username) {
+            var owner = true;
+        }
+        else {
+            var owner = false;
+        }
+    }
+    if(req.session.loggedIn) {
+        if(req.session.user == req.params.username) {
+            con.query(sql, [rawUsername], function(err, result) {
+                if (err) throw err;
+                if (result.length > 0) {
+                    var Username = result[0].Username;
+                    var bio = result[0].Bio;
+                    var creationDate = result[0].creationDate;
+                    var email = result[0].email;
+                    var image = result[0].image;
+                    msg = "";
+                    if (result[0].banned == 1) {
+                        var msg = "account is banned!";
+                    }
+                    const obj = {username: Username, bio: bio, creationDate: creationDate, email: email, image: image, msg: msg, owner: owner, userUrl: profileName};
+                    res.render('pages/account/panel/profile/edit', {obj: obj});
+                }
+                else {
+                    res.redirect('/404');
+                }
+            })            
+        }
+        else {
+            console.log('you are not the owner of this profile')
+            res.redirect('/404');
+        }
+    }
+    else {
+        res.redirect('/login');
+    }
+})
+
+app.post('/profile/:username/saveChanges', upload.single('ProfileImage'), function(req, res) {
+    var profileName = req.params.username;
+    var rawUsername = profileName.replace(' (Moderator)', '');
+    var newName = req.body.newUsername;
+    var bio = req.body.newBio;
+    
+    var img = req.file;
+    var path = "data\\pfps\\" + req.file.filename;
+    if(newName == "" || newName == undefined) {
+        newName = rawUsername;
+    }
+    if(bio == "" || bio == undefined) {
+        bio = req.session.bio;
+    }
+    req.session.bio = bio;
+    if (rawUsername == req.session.rawUser) {
+        if (img == undefined) {
+            var sql = `UPDATE accounts SET Username = ?, Bio = ? WHERE Username = ?`;
+            con.query(sql, [newName, bio, rawUsername], function(err, result) {
+                req.session.user = newName;
+                if (err) throw err;
+                res.redirect('/profile/' + newName);
+            })
+        }
+        else {
+            var sql = `UPDATE accounts SET Username = ?, Bio = ?, image = ? WHERE Username = ?`;
+            con.query(sql, [newName, bio, path, rawUsername], function(err, result) {
+                if (err) throw err;
+                req.session.user = newName;
+                res.redirect('/profile/' + newName);
+            })
+        }
+    }
+    else {
+        res.redirect('/login');
+    }
+
 })
 
 app.get('*', function(req, res){

@@ -129,7 +129,7 @@
 }
 input[type="text"],
 [type="password"],
-#textarea,
+#bio,
 #textareaA {
   width: 90%;
   padding: 12px 20px;
@@ -139,6 +139,7 @@ input[type="text"],
   border-radius: 4px;
   box-sizing: border-box;
   outline: none;
+  resize: none;
 }
 
 #submit {
@@ -177,9 +178,35 @@ input[type="text"],
   cursor: pointer;
 }
 
-#pfp {
-  border-radius: 50%;
-  width:150px;
-  height:150px;
-  
+#upload {
+  font-size: 25px;
+  background-color: rgb(114, 103, 239);
+  border: solid 1px;
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+  transition: 0.5s;
+  margin: 10px 0 0 10px;
+  transition: 0.5s;
+}
+
+#submitT {
+  display: inline-block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  border: 2px solid #69a6ce;
+  color: #fff;
+  background: #69a6ce;
+  font-weight: 500;
+  padding: 10px 25px;
+  border-radius: 25px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+#submitT:hover {
+  background: #fff;
+  cursor: pointer;
+  color: #69a6ce;
 }

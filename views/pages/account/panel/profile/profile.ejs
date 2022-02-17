@@ -1,0 +1,55 @@
+<!--make me a 404 page with basic css-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= obj.username %></title>
+    <link rel="stylesheet" href="../../../../css/ver.css" />
+    <link res="stylesheet" href="../../../../../css/profile.css" />
+    <script>
+        function edit() {
+            var owner = '<%= obj.owner %>';
+            console.log(owner);
+            //check if owner is true
+            if (owner === 'true') {
+                console.log('owner is true');
+                //if owner is true, then show edit button
+                document.getElementsByName("edit").style.display = "block";
+            }
+        }
+        window.onload = edit;
+    </script>
+  </head>
+  <body>
+    
+    <div class="error-boddy">
+        <a id="top" href="/"><button class="btnT">main page</button></a>
+        <form action="/profile/<%= obj.userUrl %>/edit" method="post">
+            <input type="submit" class="btnT" value="edit" name="edit">
+      <div id="error-page">
+        <div class="error-content">
+            <div class="user-image">
+                <img src="../../../../../<%= obj.image %>" id = "pfp">
+            </div>
+          <h2 class="header" data-text="<%= obj.username %>"><%= obj.username %></h2>
+          <br />
+          <p><%= obj.msg %></p>
+          <div class="btns">
+            <div>
+                <div class="container">
+                    <div class="content">
+                        <p class="name"><%= obj.bio %></p>
+                    </div>
+                </div>
+                <!-- This is link of adding small images
+                     which are used in the link section  -->       
+            </div>
+          </div>
+          <p class ="details" style = "color:grey; font-size: 14px;">
+            account was created on: <%= obj.creationDate %>
+        </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
