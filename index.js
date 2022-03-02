@@ -100,8 +100,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 
+
+//get landing page
 app.get('/', function(req, res){
-    
     if (req.session.loggedIn) {
         con.query('SELECT * FROM accounts WHERE Username ="' + req.session.rawUser + '" OR '+'"' + req.session.user + '"', function(err, result) {
             if (err) throw err
@@ -111,7 +112,15 @@ app.get('/', function(req, res){
                 req.session.banned = 1;
                 var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
                 res.render('pages/index', {username: req.session.user, msg: bannedt});
-            } else {
+            }
+            else if (result[0].staff) {
+                req.session.mod == true
+                con.query('SELECT * FROM tables', function(err, results) {
+                    if (err) throw err
+                    res.render('pages/index', {username: req.session.user, msg: "", tables: results});
+                })
+            }
+             else {
                 con.query('SELECT * FROM tables', function(err, results) {
                     if (err) throw err
                     res.render('pages/index', {username: req.session.user, msg: "", tables: results});
@@ -132,6 +141,7 @@ app.get('/', function(req, res){
     }
     });
 
+//get creating posts
 app.get('/createpost', function(req, res){
     if (req.session.loggedIn) {
         var sql = `SELECT * FROM accounts WHERE Username = ?`;
@@ -150,6 +160,7 @@ app.get('/createpost', function(req, res){
     }
 });
 
+//get login
 app.get('/login', function(req, res){
     if (req.session.loggedIn) {
         var sql = `SELECT * FROM accounts WHERE Username = ?`;
@@ -171,7 +182,7 @@ app.get('/login', function(req, res){
     }
     
 });
-
+//get register
 app.get('/register', function(req, res){
     if (req.session.loggedIn) {
         var sql = `SELECT * FROM accounts WHERE Username = ?`;
@@ -194,7 +205,7 @@ app.get('/ver', (req, res) => {
     res.redirect('/')
 })
 
-//get panel from pages/account/panel
+//get panel
 app.get('/panel', function(req, res){
     var username = req.session.user;
     if (req.session.loggedIn) {
@@ -217,7 +228,7 @@ app.get('/panel', function(req, res){
     }
 
 });
-
+//get details
 app.get('/details', (req, res) => {
     if (req.session.loggedIn) {
         var sql = `SELECT * FROM accounts WHERE Username = ?`;
@@ -242,13 +253,11 @@ app.get('/details', (req, res) => {
 })
 
 
-//make a 404 page
-
-
+//get report
 app.get('/report', function(req, res){
     res.render('pages/report', {msg: ''});
 });
-
+//post report
 app.post('/report', function(req, res){
     if (req.session.loggedIn) {
         var username = req.session.user;
@@ -270,7 +279,7 @@ if(req.session.loggedIn){
 }
 });
 
-
+//post register
 app.post('/register', function(req, res){
     function generateRandomUserId(length) {
         var result           = '';
@@ -293,6 +302,7 @@ app.post('/register', function(req, res){
     const username = req.body.username;
     const password = req.body.password;
     const email = req.body.email;
+    const url = "/profile/" + username + "/";
     function register(username, password, email) {
         Id = generateRandomUserId(18)
         if(password.length < 8){ res.render('pages/account/register', {msg: 'password must be at least 8 characters long'}); }
@@ -305,7 +315,7 @@ app.post('/register', function(req, res){
                 res.render('pages/account/register', {msg: 'Username or email already exists'})
             }
             else {
-                var query = "INSERT INTO accounts (Id, username, password, email) VALUES ('" + Id + "', '" + username + "', '" + hash + "', '" + email + "')"
+                var query = "INSERT INTO accounts (Id, username, password, email, url) VALUES ('" + Id + "', '" + username + "', '" + hash + "', '" + email + "', '" + url + "')"
                 con.query(query, (err, result) => {
                 if(err) throw err;
                 res.render('pages/account/login', {msg: "account created, please login"})
@@ -316,7 +326,7 @@ app.post('/register', function(req, res){
     }
     register(username, password, email)
 })
-
+//post login
 app.post('/login', (req, res) => {
     var username = req.body.username
     var password = req.body.password
@@ -348,7 +358,7 @@ app.post('/login', (req, res) => {
                                     if (err) throw err;
                                     req.session.mod = result[0].staff;
                                     req.session.banned = result[0].banned;
-                                    if(req.session.mod == true) {
+                                    if(req.session.mod) {
                                         var usernameE = username + ' (Moderator)';
                                         req.session.rawUser = username;
                                         req.session.user = usernameE;
@@ -385,7 +395,7 @@ app.post('/login', (req, res) => {
 
 })
 
-
+//send verification email
 app.post('/send-email', function(req, res, next) {
 
     var email = req.body.email;
@@ -847,9 +857,9 @@ app.post('/panelAdmin/searchUser', (req, res) => {
     var sql = `SELECT * FROM accounts WHERE Username = ? OR Id = ?`;
     con.query(sql, [user, user], function(err, result) {
         if (result.length > 0) {
-            var username = result[0].Username;
-            
-            res.render('pages/account/panel/admin/results/users', {username: username});
+            var url = result[0].url;
+            var mod = req.session.mod;
+            res.redirect(url + '?mod=' + mod);
         }
     })
 })
@@ -863,17 +873,19 @@ app.get('/profile/:username', function(req, res) {
             var owner = false;
         }
     }
-    var username = req.params.username;
+    var usernameLong = req.params.username;
     var sql = `SELECT * FROM accounts WHERE Username = ?`;
-    var rawUsername = username.replace(' (Moderator)', '');
+    var rawUsername = usernameLong.replace(' (Moderator)', '');
     con.query(sql, [rawUsername], function(err, result) {
         if (err) throw err;
         if (result.length > 0) {
             var Username = result[0].Username;
+            var mod = req.query.mod;
             var bio = result[0].bio;
             var creationDate = result[0].creationDate;
             var email = result[0].email;
             var image = result[0].image;
+            var mods = req.session.mod;
             if (image == null || image == "" || image == undefined) {
                 image = 'https://i.pinimg.com/550x/18/b9/ff/18b9ffb2a8a791d50213a9d595c4dd52.jpg';
             }
@@ -881,14 +893,24 @@ app.get('/profile/:username', function(req, res) {
             if (result[0].banned == 1) {
                 var msg = "account is banned!";
             }
-            const obj = {username: Username, bio: bio, creationDate: creationDate, email: email, image: image, msg: msg, owner: owner, userUrl: username};
-            res.render('pages/account/panel/profile/profile', {obj: obj});
+            const obj = {username: Username, bio: bio, creationDate: creationDate, email: email, image: image, msg: msg, owner: owner, userUrl: usernameLong};
+            con.query('SELECT * FROM tables WHERE creator = ?', [usernameLong], function(err, resultp) {
+            if(mod && mods) {
+                res.render('pages/account/panel/profile/profileMod', {obj: obj, tables: resultp});
+            }
+            else {
+                res.render('pages/account/panel/profile/profile', {obj: obj, tables: resultp});
+            }
+            });
+            
         }
         else {
             res.redirect('/404');
         }
     })
 })
+
+
 app.post('/profile/:username/edit', function(req, res) {
     var profileName = req.params.username;
     var rawUsername = profileName.replace(' (Moderator)', '');
@@ -938,9 +960,25 @@ app.post('/profile/:username/saveChanges', upload.single('ProfileImage'), functi
     var rawUsername = profileName.replace(' (Moderator)', '');
     var newName = req.body.newUsername;
     var bio = req.body.newBio;
-    
     var img = req.file;
-    var path = "data\\pfps\\" + req.file.filename;
+    
+    var sql = `SELECT * FROM accounts WHERE Username = ?`;
+    con.query(sql, [newName], function(err, result) {
+        console.log(result)
+        if (err) throw err;
+        if (result.length > 0) {
+            console.log('a')
+            var obj = {msg: 'Username already taken'};
+            res.render('pages/account/panel/profile/edit', {obj: obj});
+            return;
+        }
+    });
+    if (img = undefined || img == null) {
+        img = 'https://i.pinimg.com/564x/18/b9/ff/18b9ffb2a8a791d50213a9d595c4dd52.jpg';
+    }
+    else {
+        img = "../../../../../data\\pfps\\" + req.file.filename;
+    }
     if(newName == "" || newName == undefined) {
         newName = rawUsername;
     }
@@ -959,10 +997,11 @@ app.post('/profile/:username/saveChanges', upload.single('ProfileImage'), functi
         }
         else {
             var sql = `UPDATE accounts SET Username = ?, Bio = ?, image = ? WHERE Username = ?`;
-            con.query(sql, [newName, bio, path, rawUsername], function(err, result) {
+            con.query(sql, [newName, bio, img, rawUsername], function(err, result) {
                 if (err) throw err;
                 req.session.user = newName;
                 res.redirect('/profile/' + newName);
+                return;
             })
         }
     }
@@ -978,4 +1017,4 @@ app.get('*', function(req, res){
 
 app.listen(port, () => {
     console.log(`listening at http://localhost:${port}`)
-  })
+  });

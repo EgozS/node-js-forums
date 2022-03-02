@@ -1,24 +1,29 @@
-<!--make me a 404 page with basic css-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title><%= obj.username %></title>
+    <title><%= obj.username %> mod</title>
     <link rel="stylesheet" href="../../../../css/ver.css" />
     <link res="stylesheet" href="../../../../../css/profile.css" />
-    <script>
-        function edit() {
-            var owner = '<%= obj.owner %>';
-            console.log(owner);
-            //check if owner is true
-            if (owner === 'true') {
-                console.log('owner is true');
-                //if owner is true, then show edit button
-                document.getElementsByName("edit").style.display = "block";
-            }
-        }
-        window.onload = edit;
-    </script>
+    <style>
+      .btnW {
+      font-size: 25px;
+      background-color: #ff3333;
+      border: solid 1px;
+      color: white;
+      border-radius: 5px;
+      width: 40%;
+      padding: 10px;
+      transition: 0.5s;
+      transition: 0.5s;
+      height: 50px;
+      margin-bottom: 10px;
+    }
+    .btnW:hover {
+      background-color: rgb(204, 51, 51);
+      cursor: pointer;
+    }
+    </style>
   </head>
   <body>
     
@@ -27,7 +32,12 @@
         <form action="/profile/<%= obj.userUrl %>/edit" method="post">
             <input type="submit" class="btnT" value="edit" name="edit">
       <div id="error-page">
+        
         <div class="error-content">
+        <form action="/banAccountP" method="post">
+            <input type="submit" class="btnW" value="Ban user" />
+        </form>
+        <br/>
             <div class="user-image">
                 <img src="<%= obj.image %>" id = "pfp">
             </div>
@@ -38,28 +48,20 @@
             <div>
                 <div class="container">
                     <div class="content">
-                      <p>bio:</p>
                         <p class="name"><%= obj.bio %></p>
                     </div>
                 </div>
-                <hr>
-                <p>posts:</p>
-                <br>
-                <% if(tables.length <= 0) { %>
-                  <p style = "color:#ff3333">no posts found</p>
-                <% } else { %>
-                <% for(var i = 0; i < tables.length; i++) { %>
-                  <div class="card">
-                    <div class="card-title">
-                      <h2><%= tables[i].rawname %></h2>
+                <p>posts</p>
+                <% if tables.length > 0 { %>
+                <% for (var i = 0; i < tables.length; i++) { %>
+                <div class="container">
+                    <div class="content">
+                        <p class="name"><%= tables[i].msg %></p>
                     </div>
-                    <div class="card-content">
-                      <a href= "<%= tables[i].url %>">click here to view post</a>
-                      <p>published by <%= tables[i].creator %></p>
-                    </div>
-                </div>        
+                    <% } %>
+                  <% } else { %>
+                  <p>no posts yet!</p>
                   <% } %>
-                <% } %>
             </div>
           </div>
           <p class ="details" style = "color:grey; font-size: 14px;">
