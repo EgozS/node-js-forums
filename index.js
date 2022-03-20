@@ -1005,7 +1005,7 @@ app.post('/profile/:username/saveChanges', upload.single('ProfileImage'), functi
         if (err) throw err;
         if (result.length > 0) {
             console.log('a')
-            var obj = {msg: 'Username already taken'};
+            var obj = {msg: 'Username already taken please try a different one'};
             res.render('pages/account/panel/profile/edit', {obj: obj});
             return;
         }
