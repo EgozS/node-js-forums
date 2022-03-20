@@ -10,11 +10,11 @@
     <div class="error-boddy">
       <div id="error-page">
         <div class="error-content">
-          <h2 class="header" data-text="Users found:">Users found:</h2>
+          <h2 class="header" data-text="lookup user">lookup user</h2>
           <br/>
-          <p><%= msg %></p>
+          <p style = color:#ff3333;><%= msg %></p>
           <div class="btns">
-            <form action = "/panelAdmin/searchUser" method="POST">
+            <form action = "/panel/searchUser" method="POST">
                 <input type="text" name="username" placeholder="Username or Id">
                 <br>
                 <input type = "submit" id="submit" value = "Search User">               

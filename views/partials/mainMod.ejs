@@ -6,6 +6,12 @@
         <input type="submit" class="btnW" value="Ban user" />
     </form>
     <h2>post was created by <%= creator %></h2>
+    <div class="likes">
+        <form action="/question/<%= name %>/<%= id %>/likePost" method="post">
+            <input type="submit" id="btn-snd" value="Like" />
+        </form>
+        <h4>Likes: <%= likes %></h4>
+    </div>
     <div class="question">
         <h1><%= title %></h1>
         <div class="rpx"></div>

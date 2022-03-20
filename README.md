@@ -34,10 +34,11 @@ after that you can simply use the app.
 # to do
 
 i still want to add:
-* profile picture support
 * comment section on posts
 * (any ideas you guys have will work)
 
+done
+* added profile picture support in picture / gif format
 # support
 
 as the app is a private small project, there might be bugs i did not find, if you have ANY bugs, you can submit them on guthub in the issues section.

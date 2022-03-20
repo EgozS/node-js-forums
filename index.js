@@ -211,6 +211,7 @@ app.get('/panel', function(req, res){
     if (req.session.loggedIn) {
         if(req.session.mod) {
             res.render('pages/account/panelAdmin', {msg: 'welcome back mod', username: username});
+            return;
         }
         var sql = `SELECT * FROM accounts WHERE Username = ?`;
         con.query(sql, [req.session.user], function(err, result) {
@@ -366,6 +367,7 @@ app.post('/login', (req, res) => {
                                     }
                                     else {
                                         req.session.user = username;
+                                        req.session.rawUser = username;
                                         if (req.session.banned == 0){
                                         res.render('pages/account/panel', {msg:"Welcome back!", username: req.session.user})
                                         } else {
@@ -524,7 +526,7 @@ app.post('/createpost', function(req, res){
     var url = 'http://localhost/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod;
     var creator = req.session.user;
 
-    var tableCr = `CREATE TABLE ${idTitle} (title VARCHAR(255), body LONGTEXT, answer LONGTEXT, creator VARCHAR(255), id INT NOT NULL, comment LONGTEXT)`;
+    var tableCr = `CREATE TABLE ${idTitle} (title VARCHAR(255), body LONGTEXT, answer LONGTEXT, creator VARCHAR(255), id INT NOT NULL DEFAULT 0, comment LONGTEXT, likes INT DEFAULT 0, alreadyLiked VARCHAR(255), createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)`;
     con.query(tableCr)
     var InsertNewTable = `INSERT INTO ${idTitle} (title, body, answer, creator, id) VALUES ('${title}', '${body}', '${answer}', '${creator}', '${randomId}')`;
     con.query(InsertNewTable)
@@ -552,13 +554,14 @@ app.get('/question/:idTitle', function(req, res) {
                 var body = result[0].body;
                 var answer = result[0].answer;
                 var creator = result[0].creator;
+                var likes = result[0].likes;
                 if (mod && req.session.mod) {
                     req.session.postId = id
                     req.session.postName = pageName
-                    res.render('pages/tamplateMod', {title: title, body: body, creator: creator, name: pageName, id: id});
+                    res.render('pages/tamplateMod', {title: title, body: body, creator: creator, name: pageName, id: id, likes: likes, answer: answer, mod: mod});
                 }
                 else{
-                    res.render('pages/tamplate', {title: title, body: body, creator: creator, name: pageName, id: id});
+                    res.render('pages/tamplate', {title: title, body: body, creator: creator, name: pageName, id: id, likes: likes, answer: answer, mod: mod});
                 }
                 
             })
@@ -568,6 +571,44 @@ app.get('/question/:idTitle', function(req, res) {
     })
 
 })
+
+app.post('/question/:idTitle/:id/likePost', function(req, res) {
+        var id = req.params.id;
+        var mod = req.query.mod;
+        var pageName = req.params.idTitle;
+        var lookForTable = `SELECT * FROM ${pageName}`;
+    if (req.session.loggedIn) {
+        con.query(lookForTable, function(err, rows, fields) {
+            if (rows.length > 0) {
+            for(i = 0; i < rows.length; i++) {
+                if(rows[i].alreadyLiked == req.session.rawUser) {
+                    console.log("already liked")
+                    res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+                    return;
+                }
+            }
+                    var likes = rows[0].likes;
+                    var likes = likes + 1;
+                    var updateJson = `INSERT INTO ${pageName} (alreadyLiked) VALUES ('${req.session.rawUser}')`;
+                    var updateLikes = `UPDATE ${pageName} SET likes = ${likes} WHERE id = ${id}`;
+                    con.query(updateJson)
+                    con.query(updateLikes, function(err, result) {
+                        if (err) throw err
+                        console.log('liked')
+                        res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+                    })
+                }
+                else {
+                    res.render('pages/404');
+                }
+    })
+    }
+    else {
+        res.render('pages/account/login', {msg: 'You must be logged in to like a post'});
+    }
+})
+
+
 
 app.post('/question/:idTitle/comments', (req, res) => {
 
@@ -828,15 +869,9 @@ app.post('/panelAdmin/giveMod', (req, res) => {
     }
 })
 
-app.get('/panelAdmin/searchUser', (req, res) => {
+app.get('/panel/searchUser', (req, res) => {
     if(req.session.loggedIn) {
-        if(req.session.mod) {
-            res.render('pages/account/panel/admin/searchUser', {msg: ''});
-        }
-        else {
-            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page'});
-        }  
-    }
+        res.render('pages/account/panel/searchUser', {msg: ''});    }
     else {
         res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
     }
@@ -852,14 +887,16 @@ app.get('/panel/userRes/', function(req, res) {
         res.redirect('/')
     }
 });
-app.post('/panelAdmin/searchUser', (req, res) => {
+app.post('/panel/searchUser', (req, res) => {
     var user = req.body.username;
     var sql = `SELECT * FROM accounts WHERE Username = ? OR Id = ?`;
     con.query(sql, [user, user], function(err, result) {
         if (result.length > 0) {
             var url = result[0].url;
-            var mod = req.session.mod;
-            res.redirect(url + '?mod=' + mod);
+            res.redirect(url);
+        }
+        else {
+            res.render('pages/account/panel/searchUser', {msg: 'account not found'});
         }
     })
 })
