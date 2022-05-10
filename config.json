@@ -14,5 +14,6 @@
     "discord_webhook": "",
     
     "hostname": "",
-    "_comment": "Please include https or http"
+    "_comment": "Please include https or http",
+    "forum_name": "StackAE"
 }
