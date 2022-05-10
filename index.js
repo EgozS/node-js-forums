@@ -12,7 +12,7 @@ const upload = multer({ dest: './public/data/pfps/' })
 const hook = new Webhook(config.discord_webhook);
 hook.setUsername('StackAe');
 var app = express();
-var port = 80;
+var port = config.port
 
 
 app.use(session({
@@ -51,11 +51,11 @@ function sendEmail(email, token) {
     });
 
     var mailOptions = {
-        from: 'Stack Ae',
+        from: config.forum_name,
         to: email,
         //edit email properties here:
         subject: 'Email verification - test',
-        html: '<p>You requested for email verification, kindly use this <a href="http://localhost:80/verify-email?token=' + token + '">link</a> to verify your email address</p>'
+        html: '<p>You requested for email verification, kindly use this <a href="' + config.hostname + '/verify-email?token=' + token + '">link</a> to verify your email address</p>'
 
     };
 
@@ -523,7 +523,7 @@ app.post('/createpost', function(req, res){
     var titleNoSc = title.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
     var titleNoSpaces = titleNoSc.replace(/\s/g, '');
     var idTitle = generateRandomTitleId(titleNoSpaces);
-    var url = 'http://localhost/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod;
+    var url = config.hostname + '/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod;
     var creator = req.session.user;
 
     var tableCr = `CREATE TABLE ${idTitle} (title VARCHAR(255), body LONGTEXT, answer LONGTEXT, creator VARCHAR(255), id INT NOT NULL DEFAULT 0, comment LONGTEXT, likes INT DEFAULT 0, alreadyLiked VARCHAR(255), createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)`;
@@ -535,7 +535,7 @@ app.post('/createpost', function(req, res){
 
     console.log("post created named: " + idTitle)
     
-    res.redirect('http://localhost/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod);
+    res.redirect(config.hostname + '/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod);
 })
 
 app.get('/question/:idTitle', function(req, res) {
@@ -583,7 +583,7 @@ app.post('/question/:idTitle/:id/likePost', function(req, res) {
             for(i = 0; i < rows.length; i++) {
                 if(rows[i].alreadyLiked == req.session.rawUser) {
                     console.log("already liked")
-                    res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+                    res.redirect(config.hostname + '/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
                     return;
                 }
             }
@@ -595,7 +595,7 @@ app.post('/question/:idTitle/:id/likePost', function(req, res) {
                     con.query(updateLikes, function(err, result) {
                         if (err) throw err
                         console.log('liked')
-                        res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+                        res.redirect(config.hostname + '/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
                     })
                 }
                 else {
@@ -1053,5 +1053,5 @@ app.get('*', function(req, res){
   });
 
 app.listen(port, () => {
-    console.log(`listening at http://localhost:${port}`)
+    console.log(`listening at {$config.hostname}:${port}`)
   });
