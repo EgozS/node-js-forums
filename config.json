@@ -15,5 +15,6 @@
     
     "hostname": "",
     "_comment": "Please include https or http",
+    "port": "80",
     "forum_name": "Stack AE"
 }
