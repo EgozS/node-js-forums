@@ -11,5 +11,8 @@
 
     "sessions_secret": "",
 
-    "discord_webhook": ""
+    "discord_webhook": "",
+    
+    "hostname": "",
+    "_comment": "Please include https or http"
 }
