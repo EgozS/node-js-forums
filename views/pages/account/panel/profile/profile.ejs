@@ -23,7 +23,7 @@
   <body>
     
     <div class="error-boddy">
-        <a id="top" href="/"><button class="btnT">main page</button></a>
+        <a id="top" href="/"><button class="btnT">Return Home</button></a>
         <form action="/profile/<%= obj.userUrl %>/edit" method="post">
             <input type="submit" class="btnT" value="edit" name="edit">
       <div id="error-page">
@@ -38,15 +38,15 @@
             <div>
                 <div class="container">
                     <div class="content">
-                      <p>bio:</p>
+                      <p>Bio:</p>
                         <p class="name"><%= obj.bio %></p>
                     </div>
                 </div>
                 <hr>
-                <p>posts:</p>
+                <p>Posts:</p>
                 <br>
                 <% if(tables.length <= 0) { %>
-                  <p style = "color:#ff3333">no posts found</p>
+                  <p style = "color:#ff3333">No posts found!</p>
                 <% } else { %>
                 <% for(var i = 0; i < tables.length; i++) { %>
                   <div class="card">
@@ -54,8 +54,8 @@
                       <h2><%= tables[i].rawname %></h2>
                     </div>
                     <div class="card-content">
-                      <a href= "<%= tables[i].url %>">click here to view post</a>
-                      <p>published by <%= tables[i].creator %></p>
+                      <a href= "<%= tables[i].url %>">Click here to view post</a>
+                      <p>Published by <%= tables[i].creator %></p>
                     </div>
                 </div>        
                   <% } %>
@@ -63,7 +63,7 @@
             </div>
           </div>
           <p class ="details" style = "color:grey; font-size: 14px;">
-            account was created on: <%= obj.creationDate %>
+            Account was created on: <%= obj.creationDate %>
         </p>
         </div>
       </div>

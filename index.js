@@ -12,7 +12,7 @@ const upload = multer({ dest: './public/data/pfps/' })
 const hook = new Webhook(config.discord_webhook);
 hook.setUsername('StackAe');
 var app = express();
-var port = 80;
+var port = config.webport
 
 
 app.use(session({
@@ -51,11 +51,11 @@ function sendEmail(email, token) {
     });
 
     var mailOptions = {
-        from: 'Stack Ae',
+        from: config.forum_name,
         to: email,
         //edit email properties here:
         subject: 'Email verification - test',
-        html: '<p>You requested for email verification, kindly use this <a href="http://localhost:80/verify-email?token=' + token + '">link</a> to verify your email address</p>'
+        html: '<p>You requested for email verification, kindly use this <a href="' + config.hostname + '/verify-email?token=' + token + '">link</a> to verify Your email address</p>'
 
     };
 
@@ -110,25 +110,25 @@ app.get('/', function(req, res){
             var banned = result[0].banned;
             if (banned == 1){
                 req.session.banned = 1;
-                var bannedt = "you were banned by a moderator, if you think this is a mistake please join our discord server and dm a staff member"
-                res.render('pages/index', {username: req.session.user, msg: bannedt});
+                var bannedt = "You were banned by a moderator, if You think this is a mistake please join our discord server and DM a staff member."
+                res.render('pages/index', {username: req.session.user, msg: bannedt, forumname: config.forumname});
             }
             else if (result[0].staff) {
                 req.session.mod == true
                 con.query('SELECT * FROM tables', function(err, results) {
                     if (err) throw err
-                    res.render('pages/index', {username: req.session.user, msg: "", tables: results});
+                    res.render('pages/index', {username: req.session.user, msg: "", tables: results, forumname: config.forumname});
                 })
             }
              else {
                 con.query('SELECT * FROM tables', function(err, results) {
                     if (err) throw err
-                    res.render('pages/index', {username: req.session.user, msg: "", tables: results});
+                    res.render('pages/index', {username: req.session.user, msg: "", tables: results, forumname: config.forumname});
                 })
             }
         }
         else {
-            res.render('pages/index', {username: req.session.user, msg: 'error loading up top posts, please try again'});
+            res.render('pages/index', {username: req.session.user, msg: 'Error loading up top posts, please try again.', forumname: config.forumname});
         }
         })
     }
@@ -136,7 +136,7 @@ app.get('/', function(req, res){
         con.query('SELECT * FROM tables', function(err, results) {
             if (err) throw err
             
-            res.render('pages/index', {username: 'guest', msg: "", tables: results});
+            res.render('pages/index', {username: 'guest', msg: "", tables: results, forumname: config.forumname});
         })
     }
     });
@@ -172,7 +172,7 @@ app.get('/login', function(req, res){
             } else {
                 con.query('SELECT * FROM tables', function(err, results) {
                     if (err) throw err
-                    res.render('pages/index', {username: req.session.user, msg: 'you are already logged in!', tables: results});
+                    res.render('pages/index', {username: req.session.user, msg: 'You are already logged in!', tables: results});
                 })
             }
         })
@@ -192,7 +192,7 @@ app.get('/register', function(req, res){
             if (banned == 1){
                 res.redirect('/');
             } else {
-                res.render('pages/index', {username: req.session.user, msg: 'you already have an account!'});
+                res.render('pages/index', {username: req.session.user, msg: 'You already have an account!'});
             }
         })
     }
@@ -263,7 +263,7 @@ app.post('/report', function(req, res){
     if (req.session.loggedIn) {
         var username = req.session.user;
     } else {
-        var username = "guest";
+        var username = "Guest";
     }
     var problem = req.body.report;
     const embed = new MessageBuilder()
@@ -343,7 +343,7 @@ app.post('/login', (req, res) => {
                     else {
                         if (results[0].verify === "0" || results[0].verify === 0 || results[0].verify === false){
                             if (bcrypt.compareSync(password, results[0].Password)) {
-                                res.render('pages/account/ver', {msg: "please verify your email address"})
+                                res.render('pages/account/ver', {msg: "please verify Your email address"})
                             } else {
                                 res.render('pages/account/login', {msg:"Username or Password are invalid"})
                             }
@@ -430,7 +430,7 @@ app.post('/send-email', function(req, res, next) {
                     if(err) throw err
                 })
                 type = 'success';
-                msg = 'The verification link has been sent to your email address';
+                msg = 'The verification link has been sent to Your email address';
                 res.render('pages/account/ver', {msg:msg});
 
             } else {
@@ -475,12 +475,12 @@ app.get('/verify-email', function(req, res, next) {
 
             } else {
             
-                type = 'success';
-                msg = 'The email has already verified';
+                type = 'error';
+                msg = 'That email has already verified';
             }
          }else{
             type = 'error';
-            msg = 'The email has been already verified';
+            msg = 'That email has been already verified';
          }
 
         req.session.loggedIn = true;
@@ -523,7 +523,7 @@ app.post('/createpost', function(req, res){
     var titleNoSc = title.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
     var titleNoSpaces = titleNoSc.replace(/\s/g, '');
     var idTitle = generateRandomTitleId(titleNoSpaces);
-    var url = 'http://localhost/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod;
+    var url = config.hostname + '/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod;
     var creator = req.session.user;
 
     var tableCr = `CREATE TABLE ${idTitle} (title VARCHAR(255), body LONGTEXT, answer LONGTEXT, creator VARCHAR(255), id INT NOT NULL DEFAULT 0, comment LONGTEXT, likes INT DEFAULT 0, alreadyLiked VARCHAR(255), createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)`;
@@ -535,7 +535,7 @@ app.post('/createpost', function(req, res){
 
     console.log("post created named: " + idTitle)
     
-    res.redirect('http://localhost/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod);
+    res.redirect(config.hostname + '/question/' + idTitle + '?' + 'id=' + randomId + '&' + 'mod=' + mod);
 })
 
 app.get('/question/:idTitle', function(req, res) {
@@ -583,7 +583,7 @@ app.post('/question/:idTitle/:id/likePost', function(req, res) {
             for(i = 0; i < rows.length; i++) {
                 if(rows[i].alreadyLiked == req.session.rawUser) {
                     console.log("already liked")
-                    res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+                    res.redirect(config.hostname + '/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
                     return;
                 }
             }
@@ -595,7 +595,7 @@ app.post('/question/:idTitle/:id/likePost', function(req, res) {
                     con.query(updateLikes, function(err, result) {
                         if (err) throw err
                         console.log('liked')
-                        res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+                        res.redirect(config.hostname + '/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
                     })
                 }
                 else {
@@ -624,7 +624,7 @@ app.post('/question/:idTitle/comments', (req, res) => {
 app.post('/logout', (req, res) => {
     var banned = req.session.banned;
     if (banned) {
-        res.render('pages/index', {msg: 'huh? whats that? you think you can just logout? funny', username: req.session.user + ' (banned LOL) + ratio'});
+        res.render('pages/index', {msg: 'huh? whats that? You think You can just logout? funny', username: req.session.user + ' (banned LOL) + ratio'}); // skep makes good jokes
     } else {
     req.session.destroy();
     res.redirect('/');
@@ -668,7 +668,7 @@ app.get('/panel/changePassword', (req, res) => {
         })
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to change password'});
+        res.render('pages/account/login', {msg: 'You must be logged in to change password.'});
     }
 })
 
@@ -713,7 +713,7 @@ app.get('/panel/changeUsername', (req, res) => {
         res.render('pages/account/panel/changeUsername', {msg: ''});
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to change username'});
+        res.render('pages/account/login', {msg: 'You must be logged in to change username.'});
     }
 })
 
@@ -731,7 +731,7 @@ app.get('/panel/deleteAccount', (req, res) => {
         })
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to delete your account account'});   
+        res.render('pages/account/login', {msg: 'You must be logged in to delete Your account account.'});   
     }    
 });
 
@@ -741,11 +741,11 @@ app.get('/panelAdmin', (req, res) => {
             res.render('pages/account/panelAdmin', {msg: '', username: req.session.user});
         }
         else {
-            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page', username: req.session.user});
+            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page.', username: req.session.user});
         }  
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+        res.render('pages/account/login', {msg: 'You must be logged in to access this page.'});
     }
 })
 
@@ -801,11 +801,11 @@ app.get('/panelAdmin/banAccount', (req, res) => {
             res.render('pages/account/panel/admin/banAccount', {msg: ''});
         }
         else {
-            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page'});
+            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page.'});
         }  
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+        res.render('pages/account/login', {msg: 'You must be logged in to access this page.'});
     }
 });
 app.post('/panelAdmin/banAccount', (req, res) => {
@@ -835,11 +835,11 @@ app.get('/panelAdmin/giveMod', (req, res) => {
             res.render('pages/account/panel/admin/giveMod', {msg: ''});
         }
         else {
-            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page'});
+            res.render('pages/account/panel', {msg: 'You must be a moderator to access this page.'});
         }  
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+        res.render('pages/account/login', {msg: 'You must be logged in to access this page.'});
     }
 });
 app.post('/panelAdmin/giveMod', (req, res) => {
@@ -854,18 +854,18 @@ app.post('/panelAdmin/giveMod', (req, res) => {
             res.render('pages/account/panelAdmin', {msg: `${user} is now a moderator`, username: req.session.user});
             console.log(user + ' is now a moderator, promoted by' + req.session.user);
         } else {
-            res.render('pages/account/panel/admin/giveMod', {msg:"Password is invalid"})
+            res.render('pages/account/panel/admin/giveMod', {msg:"Password is invalid."})
         }
     } else {
         console.log(results)
         console.log(req.session.user)
-        res.render('pages/account/panel/admin/giveMod', {msg:"Account does not exist"})
+        res.render('pages/account/panel/admin/giveMod', {msg:"Account does not exist."})
     }
     })
     
     }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+        res.render('pages/account/login', {msg: 'You must be logged in to access this page.'});
     }
 })
 
@@ -873,7 +873,7 @@ app.get('/panel/searchUser', (req, res) => {
     if(req.session.loggedIn) {
         res.render('pages/account/panel/searchUser', {msg: ''});    }
     else {
-        res.render('pages/account/login', {msg: 'you must be logged in to access this page'});
+        res.render('pages/account/login', {msg: 'You must be logged in to access this page'});
     }
 })
 app.get('/panel/userRes/', function(req, res) {
@@ -928,7 +928,7 @@ app.get('/profile/:username', function(req, res) {
             }
             msg = "";
             if (result[0].banned == 1) {
-                var msg = "account is banned!";
+                var msg = "Account is banned!";
             }
             const obj = {username: Username, bio: bio, creationDate: creationDate, email: email, image: image, msg: msg, owner: owner, userUrl: usernameLong};
             con.query('SELECT * FROM tables WHERE creator = ?', [usernameLong], function(err, resultp) {
@@ -983,7 +983,7 @@ app.post('/profile/:username/edit', function(req, res) {
             })            
         }
         else {
-            console.log('you are not the owner of this profile')
+            console.log('You are not the owner of this profile')
             res.redirect('/404');
         }
     }
@@ -1005,7 +1005,7 @@ app.post('/profile/:username/saveChanges', upload.single('ProfileImage'), functi
         if (err) throw err;
         if (result.length > 0) {
             console.log('a')
-            var obj = {msg: 'Username already taken please try a different one'};
+            var obj = {msg: 'Username already taken, please try a different one'};
             res.render('pages/account/panel/profile/edit', {obj: obj});
             return;
         }
@@ -1053,5 +1053,5 @@ app.get('*', function(req, res){
   });
 
 app.listen(port, () => {
-    console.log(`listening at http://localhost:${port}`)
+    console.log(`Listening at {$config.hostname}:${port}`)
   });

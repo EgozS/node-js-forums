@@ -11,5 +11,10 @@
 
     "sessions_secret": "",
 
-    "discord_webhook": ""
+    "discord_webhook": "",
+    
+    "hostname": "",
+    "_comment": "Please include https or http",
+    "webport": "80",
+    "forum_name": "Stack AE"
 }

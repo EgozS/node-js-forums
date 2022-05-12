@@ -20,7 +20,7 @@
     </div>
 
     <div class="content">
-      <h1>Welcome to stack æ</h1>
+      <h1>Welcome to <%= forumname %> </h1>
       <p style="color:#ff3333"><%= msg %></p>
       <div class="post-textarea">
         <% if(tables.length <= 0) { %>
@@ -32,8 +32,8 @@
               <h2><%= tables[i].rawname %></h2>
             </div>
             <div class="card-content">
-              <a href= "<%= tables[i].url %>">click here to view post</a>
-              <p>published by <%= tables[i].creator %></p>
+              <a href= "<%= tables[i].url %>">Click here to view post</a>
+              <p>Published by <%= tables[i].creator %></p>
             </div>
         </div>        
           <% } %>

@@ -3,16 +3,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Edit profile</title>
+    <title>Edit Profile</title>
     <link rel="stylesheet" href="../../../css/edit.css" />
   </head>
   <body>
     <div class="error-boddy">
-        <a id="top" href="/"><button class="btnT">main page</button></a>
-        <a id = "top" href="/profile/<%= obj.userUrl %>"><button class="btnT">cancel</button></a>
+        <a id="top" href="/"><button class="btnT">Return Home</button></a>
+        <a id = "top" href="/profile/<%= obj.userUrl %>"><button class="btnT">Cancel</button></a>
       <div id="error-page">
         <div class="error-content">
-          <h2 class="header" data-text="Edit profile">Edit profile</h2>
+          <h2 class="header" data-text="Edit profile">Edit Profile</h2>
           <br />
           <p><%= obj.msg %></p>
           <div class="btns">
@@ -25,10 +25,10 @@
                 <br>
                 <textarea name="newBio" id = "bio" placeholder="<%= obj.bio %>"></textarea>
                 <br>
-                <label>Profile image</label>
+                <label>Profile Image</label>
                 <br>
                 <input type="file" accept="image/png, image/jpeg, image/gif" name="ProfileImage" id = "file" style = "display: none">
-                <label for="file" id = "submitT">Upload image</label>
+                <label for="file" id = "submitT">Upload Image</label>
                 <br>
                 <input type = "submit" id="submit" value = "save changes">
             </form>
