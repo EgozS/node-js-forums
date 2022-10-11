@@ -363,3 +363,15 @@ hr {
   border-radius: 5px;
   margin: auto;
 }
+
+.comment {
+  background-color: rgb(114, 103, 239);
+  border-radius: 5px;
+  color: white;
+  text-align:left;
+
+}
+
+.comment-content {
+  margin-left: 10px;
+}

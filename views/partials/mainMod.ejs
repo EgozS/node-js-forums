@@ -19,8 +19,24 @@
         <div class="rpx"></div>
     </div>
     <div class="comments">
-    <form action = "/question/<%= name %>?id=<%= id %>/comments" method = "post">
+    <form action = "/question/<%= name %>/<%= id %>/comments" method = "post">
         <textarea name="comment" placeholder="Comment" id = "comment"></textarea>
         <input type="submit" id = "btn-snd" value = "Submit Comment">
     </form>
+    <h3>comments</h3>
+    <div class="comment-section">
+        <!--loop through comments and display only the first one if it exits-->
+        <% if (comments.length < 0) { %>
+            <h4>No comments yet</h4>
+        <% } %>  
+        <% if (comments.length > 1) { %>
+        <div class="comment">
+            <div class="comment-content">
+                <h4><%= comments[1].comment %></h4>
+            <h5>Posted by: <%= comments[1].creator %></h5>
+            </div>
+        </div>
+        <% } %>
+    </div>
+    <a href="">view all comments</a>
 </div>

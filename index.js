@@ -103,6 +103,9 @@ app.set('view engine', 'ejs');
 
 //get landing page
 app.get('/', function(req, res){
+
+    req.session.connections = req.session.connections + 1;
+    console.log(`connections: ${req.session.connections}`);
     if (req.session.loggedIn) {
         con.query('SELECT * FROM accounts WHERE Username ="' + req.session.rawUser + '" OR '+'"' + req.session.user + '"', function(err, result) {
             if (err) throw err
@@ -309,15 +312,14 @@ app.post('/register', function(req, res){
         if(password.length < 8){ res.render('pages/account/register', {msg: 'password must be at least 8 characters long'}); }
         var salt = bcrypt.genSaltSync(10)
         var hash = bcrypt.hashSync(password, salt)
-        var query = "SELECT * FROM accounts WHERE username = '" + username + "' OR email = '" + email + "'"
-        con.query(query, (err, result) => {
-            if(err) throw err
+        con.query("SELECT * FROM accounts WHERE username = ? OR email = ?", [username, email], (err, result) => {
+            if(err) throw err;
             if(result.length > 0) {
                 res.render('pages/account/register', {msg: 'Username or email already exists'})
             }
             else {
                 var query = "INSERT INTO accounts (Id, username, password, email, url) VALUES ('" + Id + "', '" + username + "', '" + hash + "', '" + email + "', '" + url + "')"
-                con.query(query, (err, result) => {
+                con.query("INSERT INTO accounts (Id, username, password, email, url) VALUES (?, ?, ?, ?, ?)", [Id, username, hash, email, url], (err, result) => {
                 if(err) throw err;
                 res.render('pages/account/login', {msg: "account created, please login"})
             })
@@ -555,14 +557,20 @@ app.get('/question/:idTitle', function(req, res) {
                 var answer = result[0].answer;
                 var creator = result[0].creator;
                 var likes = result[0].likes;
-                if (mod && req.session.mod) {
-                    req.session.postId = id
-                    req.session.postName = pageName
-                    res.render('pages/tamplateMod', {title: title, body: body, creator: creator, name: pageName, id: id, likes: likes, answer: answer, mod: mod});
-                }
-                else{
-                    res.render('pages/tamplate', {title: title, body: body, creator: creator, name: pageName, id: id, likes: likes, answer: answer, mod: mod});
-                }
+                var lookForComment = `SELECT comment, creator FROM ${pageName}`;
+                con.query(lookForComment, function(err, results) {
+                    if (err) throw err
+                    var comments = results;
+                    console.log(comments);
+                    if (mod && req.session.mod) {
+                        req.session.postId = id
+                        req.session.postName = pageName
+                        res.render('pages/tamplateMod', {title: title, body: body, creator: creator, name: pageName, id: id, likes: likes, answer: answer, mod: mod, comments: comments});
+                    }
+                    else{
+                        res.render('pages/tamplate', {title: title, body: body, creator: creator, name: pageName, id: id, likes: likes, answer: answer, mod: mod, comments: comments});
+                    }
+                })
                 
             })
         } else {
@@ -610,16 +618,51 @@ app.post('/question/:idTitle/:id/likePost', function(req, res) {
 
 
 
-app.post('/question/:idTitle/comments', (req, res) => {
-
-    const comment = req.body.comment;
-
-    var insertToDb = `INSERT INTO ${req.params.idTitle} (comment) VALUES (?)`;
-    con.query(insertToDb, [comment])
-
-
+app.post('/question/:idTitle/:id/comments', (req, res) => {
+    if(req.session.loggedIn) {
+        const comment = req.body.comment;
+    var id = req.params.id;
+    var mod = req.query.mod;
+    var pageName = req.params.idTitle;
+    var username = req.session.user;
+    console.log(username);
+    var insertToDb = `INSERT INTO ${req.params.idTitle} (comment, creator) VALUES (?, ?)`;
+    con.query(insertToDb, [comment, username]);
+    res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+    }
+    else {
+        res.render('pages/account/login', {msg: 'You must be logged in to comment'});
+    }
 });
 
+app.get('/question/:idTitle/:id/fullComments', (req, res) => {
+    var id = req.params.id;
+    var pageName = req.params.idTitle;
+    var mod = req.query.mod;
+    res.redirect('http://localhost/question/' + pageName + '?' + 'id=' + id + '&' + 'mod=' + mod);
+})
+
+app.post('/question/:idTitle/:id/fullComments', (req, res) => {
+    var id = req.params.id;
+    var mod = req.query.mod;
+    var pageName = req.params.idTitle;
+    var lookForTable = `SELECT * FROM ${pageName}`;
+    con.query(lookForTable, function(err, rows, fields) {
+        if (rows.length > 0) {
+            var title = rows[0].title;
+            var url = rows[0].url;
+            var lookForComment = `SELECT comment, creator FROM ${pageName}`;
+            con.query(lookForComment, function(err, results) {
+                if (err) throw err;
+                var comments = results;
+                console.log(comments);
+                res.render('pages/tamplateComments', {title:title, comments: comments});
+            })
+        } else {
+            res.render('pages/404');
+        }
+    })
+})
 
 app.post('/logout', (req, res) => {
     var banned = req.session.banned;
@@ -966,7 +1009,7 @@ app.post('/profile/:username/edit', function(req, res) {
                 if (err) throw err;
                 if (result.length > 0) {
                     var Username = result[0].Username;
-                    var bio = result[0].Bio;
+                    var bio = result[0].bio;
                     var creationDate = result[0].creationDate;
                     var email = result[0].email;
                     var image = result[0].image;
@@ -1049,7 +1092,7 @@ app.post('/profile/:username/saveChanges', upload.single('ProfileImage'), functi
 })
 
 app.get('*', function(req, res){
-    res.render('pages/404');
+    res.redirect('/')
   });
 
 app.listen(port, () => {
